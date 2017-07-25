@@ -18,9 +18,11 @@ import logging
 
 dir = os.path.dirname(os.path.realpath(__file__))
 wh_dir = '{}/software/whatshap'.format(dir)
+hx_dir = '{}/software/hapchat'.format(dir)
 scr_dir = '{}/scripts'.format(dir)
 
 whatshap = '{}/venv/bin/whatshap'.format(wh_dir)
+hapchat = '{}/hapchat'.format(hx_dir)
 
 #
 # functions
@@ -80,6 +82,14 @@ def setup_whatshap() :
     shell('virtualenv -p python3 venv', wh_dir)
     shell('venv/bin/pip3 install Cython nose tox', wh_dir)
     shell('venv/bin/pip3 install -e .', wh_dir)
+
+# for setting up hapchat
+def setup_hapchat() :
+
+    # add the hapchat dir and build the source
+    shell('mkdir -p {}'.format(hx_dir), dir)
+    shell('cmake ../../src', hx_dir)
+    shell('make -j 8', hx_dir)
 
 
 # use whatshap to read in a bam file
@@ -168,6 +178,10 @@ def main(argv = sys.argv[1:]) :
     # check for whatshap, installing if necessary
     if not os.path.exists(whatshap) :
         setup_whatshap()
+
+    # check for hapchat, building if necessary
+    if not os.path.exists(hapchat) :
+        setup_hapchat()
 
     # parse arguments
     parser = argparse.ArgumentParser(prog = description.split()[0].rstrip(':'),
