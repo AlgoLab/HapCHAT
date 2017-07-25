@@ -39,6 +39,10 @@ def add_arguments(parser) :
     arg('bam', metavar = 'BAM',
         help = 'BAM file of sequencing reads')
 
+    # output
+    arg('--output', '-o', metavar = 'OUTPUT', default = 'standard output',
+        help = 'output VCF file with phase information')
+
     # realignment
     arg('--reference', '-r', metavar = 'FASTA',
         help = 'reference file, fo detecting alleles in realignment mode')
@@ -117,7 +121,7 @@ def read_bam(vcf, bam, reference) :
                    stdout = open(out,'w'),
                    stderr = open(log,'w'))
 
-    # wif file for the next step
+    # return wif file (location)
     return wif
 
 
@@ -140,7 +144,7 @@ def merge_reads(wif, e, m, t, n) :
                    stdout = open(log,'w'),
                    stderr = subprocess.STDOUT)
 
-    # merged wif file for the next step
+    # return merged wif file
     return out
 
 
@@ -166,8 +170,47 @@ def downsample(wif, seed, maxcov) :
     downs = '{}.downs.s{}.m{}.wif'.format(wif, seed, maxcov)
     shell('bash {}/extractsample.bash {} {} {} {}'.format(scr_dir, wif, sample, seed, maxcov))
 
-    # downsampled wif file for the next step
+    # return downsampled wif file
     return downs
+
+
+# run hapchat
+def run_hapchat(wif) :
+
+    # run hapchat with default parameters
+    hap = '{}.hap'.format(wif)
+    log = '{}.log'.format(hap)
+    subprocess.run('''
+
+  {} -i {} -o {} -A -e 0.05 -a 0.1 -b 1000 -r 0
+
+    '''.format(hapchat, wif, hap).split(),
+                   stdout = open(log,'w'),
+                   stderr = subprocess.STDOUT)
+
+    # return resulting haplotypes
+    return hap
+
+# convert hapchat output to phased vcf
+def phase_vcf(hap, wif, vcf) :
+
+    # obtain blocks of the instance
+    blocks = '{}.info_/block_sites_'.format(wif)
+    shell('python {}/wiftools.py -i {}'.format(scr_dir, wif))
+
+    # phase vcf with blocks and haplotype info
+    phased_vcf = '{}.vcf'.format(hap)
+    log = '{}.log'.format(phased_vcf)
+    subprocess.run('''
+
+  python {}/subvcf.py -p {} {} {}
+
+    '''.format(scr_dir, hap, blocks, vcf).split(),
+                   stdout = open(phased_vcf,'w'),
+                   stderr = open(log,'w'))
+
+    # return phased vcf (location)
+    return phased_vcf
 
 
 #
@@ -200,6 +243,20 @@ def main(argv = sys.argv[1:]) :
 
     # random downsampling
     downs_wif = downsample(merged_wif, args.seed, args.max_coverage) 
+
+    # run hapchat
+    hap = run_hapchat(downs_wif)
+
+    # obtain phased vcf
+    phased_vcf = phase_vcf(hap, wif, args.vcf)
+
+    # output phased vcf to stdout (or output file, if specified)
+    output = sys.stdout
+    if args.output != 'standard output' :
+        output = open(args.output,'w')
+
+    for line in open(phased_vcf,'r') :
+        print(line, file = output, end = '')
 
 
 if __name__ == '__main__' :
