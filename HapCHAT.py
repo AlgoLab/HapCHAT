@@ -18,6 +18,7 @@ import logging
 
 dir = os.path.dirname(os.path.realpath(__file__))
 wh_dir = '{}/software/whatshap'.format(dir)
+scr_dir = '{}/scripts'.format(dir)
 
 whatshap = '{}/venv/bin/whatshap'.format(wh_dir)
 
@@ -36,10 +37,24 @@ def add_arguments(parser) :
     arg('bam', metavar = 'BAM',
         help = 'BAM file of sequencing reads')
 
-    # optional arguments
+    # realignment
     arg('--reference', '-r', metavar = 'FASTA',
         help = 'reference file, fo detecting alleles in realignment mode')
-    arg('--max-coverage', '-H', metavar = 'MAXCOV', default = 15, type = int,
+
+    # merging reads
+    arg('--thr', '-t', metavar = 'THRESHOLD', default = 6, type = int,
+        help = 'threshold for the merging step')
+    arg('--neg_thr', '-n', metavar = 'NEG_THRESHOLD', default = 3, type = int,
+        help = 'negative threshold for the merging step')
+    arg('--error_rate', '-e', metavar = 'ERROR_RATE', default = 0.15, type = float,
+        help = 'probability that a site is wrong')
+    arg('--max_err', '-m', metavar = 'MAX_ERR', default = 0.25, type = float,
+        help = 'maximum error rate for a site')
+
+    # downsampling
+    arg('--seed', '-s', metavar = 'SEED', default = 1, type = int,
+        help = 'seed for psuedorandom downsampling')
+    arg('--max_coverage', '-H', metavar = 'MAXCOV', default = 15, type = int,
         help = 'downsample coverage to at most MAXCOV')
 
 
@@ -70,27 +85,79 @@ def setup_whatshap() :
 # use whatshap to read in a bam file
 def read_bam(vcf, bam, reference) :
 
-    # setup the parameters
+    # setup realignment mode
     realignment = ''
     if reference :
         realignment = '--reference {}'.format(reference)
 
-    rawreal = 'realigned' if realignment else 'raw'
-    wif = '{}.hx.{}.wif'.format(bam, rawreal)
-    out = '{}.transcript'.format(wif)
-    err = '{}.log'.format(wif)
+    # set up dir for intermediate output
+    int_dir = '{}/.{}.hx_'.format(os.path.dirname(bam), os.path.basename(bam))
+    shell('mkdir -p {}'.format(int_dir))
 
     # run whatshap
+    rawreal = 'realigned' if realignment else 'raw'
+    wif = '{}/{}.wif'.format(int_dir, rawreal)
+    out = '{}.transcript'.format(wif)
+    log = '{}.log'.format(wif)
     subprocess.run('''
 
   {} phase -o /dev/null {} --output-wif {} -H 1000 {} {}
 
     '''.format(whatshap, realignment, wif, vcf, bam).split(),
                    stdout = open(out,'w'),
-                   stderr = open(err,'w'))
+                   stderr = open(log,'w'))
 
     # wif file for the next step
     return wif
+
+
+# the merging reads step
+def merge_reads(wif, e, m, t, n) :
+
+    # setup the parameters
+    pe = str(e).split('.')[1]
+    pm = str(m).split('.')[1]
+    out = '{}.merged_e{}_m{}_t{}_n{}.wif'.format(wif, pe, pm, t, n)
+    graph = '{}.graph'.format(out)
+    log = '{}.log'.format(out)
+
+    # merge the reads
+    subprocess.run('''
+
+  python {}/rb-merge.py -e {} -m {} -t {} -n {} -w {} -o {} -g {}
+
+    '''.format(scr_dir, e, m, 10**t, 10**n, wif, out, graph).split(),
+                   stdout = open(log,'w'),
+                   stderr = subprocess.STDOUT)
+
+    # merged wif file for the next step
+    return out
+
+
+# the random downsampling step
+def downsample(wif, seed, maxcov) :
+
+    # seeded pseudorandom shuffle of the lines of wif
+    shuffle = '{}.lines.shuf{}'.format(wif, seed)
+    shell('bash {}/pseudorandomshuffle.bash {} {}'.format(scr_dir, wif, seed))
+
+    # greedily downsample wif to coverage according to shuffle
+    sample = '{}.sample_s{}_m{}'.format(wif, seed, maxcov)
+    log = '{}.log'.format(sample)
+    subprocess.run('''
+
+  python {}/wiftools.py -s {} {} {}
+
+    '''.format(scr_dir, maxcov, shuffle, wif).split(),
+                   stdout = open(sample,'w'),
+                   stderr = open(log,'w'))
+
+    # extract this sample
+    downs = '{}.downs.s{}.m{}.wif'.format(wif, seed, maxcov)
+    shell('bash {}/extractsample.bash {} {} {} {}'.format(scr_dir, wif, sample, seed, maxcov))
+
+    # downsampled wif file for the next step
+    return downs
 
 
 #
@@ -110,8 +177,15 @@ def main(argv = sys.argv[1:]) :
     add_arguments(parser)
     args = parser.parse_args(argv)
 
-    # read vcf / bam pair, returning (location of) resulting wif
-    wif_file = read_bam(args.vcf, args.bam, args.reference)
+    # read vcf/bam
+    wif = read_bam(args.vcf, args.bam, args.reference)
+
+    # merge reads
+    merged_wif = merge_reads(wif, args.error_rate, args.max_err,
+                             args.thr, args.neg_thr)
+
+    # random downsampling
+    downs_wif = downsample(merged_wif, args.seed, args.max_coverage) 
 
 
 if __name__ == '__main__' :
