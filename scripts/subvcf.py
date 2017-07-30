@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 usage = '''
 
 usage: python subvcf.py [-v] [-H] [-p P S] [file.vcf]

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 description = '''
 
@@ -110,7 +110,7 @@ def merge_reads(wif, e, m, t, n) :
     # merge the reads
     subprocess.run('''
 
-  python {}/rb-merge.py -e {} -m {} -t {} -n {} -w {} -o {} -g {}
+  python3 {}/rb-merge.py -e {} -m {} -t {} -n {} -w {} -o {} -g {}
 
     '''.format(scr_dir, e, m, 10**t, 10**n, wif, out, graph).split(),
                    stdout = open(log,'w'),
@@ -132,7 +132,7 @@ def downsample(wif, seed, maxcov) :
     log = '{}.log'.format(sample)
     subprocess.run('''
 
-  python {}/wiftools.py -s {} {} {}
+  python3 {}/wiftools.py -s {} {} {}
 
     '''.format(scr_dir, maxcov, shuffle, wif).split(),
                    stdout = open(sample,'w'),
@@ -168,14 +168,14 @@ def phase_vcf(hap, wif, vcf) :
 
     # obtain blocks of the instance
     blocks = '{}.info_/block_sites_'.format(wif)
-    shell('python {}/wiftools.py -i {}'.format(scr_dir, wif))
+    shell('python3 {}/wiftools.py -i {}'.format(scr_dir, wif))
 
     # phase vcf with blocks and haplotype info
     phased_vcf = '{}.vcf'.format(hap)
     log = '{}.log'.format(phased_vcf)
     subprocess.run('''
 
-  python {}/subvcf.py -p {} {} {}
+  python3 {}/subvcf.py -p {} {} {}
 
     '''.format(scr_dir, hap, blocks, vcf).split(),
                    stdout = open(phased_vcf,'w'),

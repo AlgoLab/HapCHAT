@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 usage = '''
 
 usage: python wiftools.py [-i] [-z] [-r] [-b B] [-c C] [-s S P] [-v V] file.wif
