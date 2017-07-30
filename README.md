@@ -3,7 +3,10 @@
 Adaptive haplotype assembly for efficiently leveraging high coverage
 in long reads
 
-# Reference
+1. [Citation](#cite)
+2. [Installation](#install)
+
+## <a name="cite"></a> Citation ##
 
 A description of the algorithm, as well as a detailed comparison
 experiment with other haplotype assembly tools is presented in:
@@ -13,4 +16,4 @@ Vedova and Paola Bonizzoni.  _HapCHAT: Adaptive haplotype assembly for
 efficiently leveraging high coverage in long reads_.  bioRxiv XXXXXX.
 *_Joint first authors_
 
-# Installation
+## <a name="install"></a> Installation ##
