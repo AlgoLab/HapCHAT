@@ -13,8 +13,10 @@ experiment with other haplotype assembly tools is presented in:
 
 Stefano Beretta*, Murray Patterson*, Simone Zaccaria, Gianluca Della
 Vedova and Paola Bonizzoni.  _HapCHAT: Adaptive haplotype assembly for
-efficiently leveraging high coverage in long reads_.  bioRxiv XXXXXX.
+efficiently leveraging high coverage in long reads_.  bioRxiv 170225.
 *_Joint first authors_
+
+DOI: [10.1101/170225](https://doi.org/10.1101/170225)
 
 ## <a name="install"></a> Installation ##
 
