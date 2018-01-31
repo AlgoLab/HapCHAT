@@ -6,7 +6,8 @@ hapchat = basedir + '/HapCHAT.py'
 # master rule
 rule master :
 	input :
-		'out.phased.vcf'
+		'out.phased.vcf',
+		'out.realigned.phased.vcf'
 
 # auxiliary rules
 #----------------------------------------------------------------------
@@ -21,6 +22,34 @@ rule run_hapchat :
 
 	shell : '{hapchat} {input.vcf} {input.bam} > {output}'
 
+rule run_hapchat_realignment :
+	input :
+		bam = datadir + '/file.bam',
+		vcf = datadir + '/file.vcf',
+		fasta = 'human_g1k_v37.fasta',
+		core = core
+		
+	output : 'out.realigned.phased.vcf'
+
+	shell : '''
+
+   {hapchat} --reference {input.fasta} \
+      {input.vcf} {input.bam} > {output} '''
+
 rule setup_hapchat :
 	output : core
 	shell : 'bash {basedir}/setup.sh'
+
+rule download_reference :
+	output :
+		'human_g1k_v37.fasta'
+
+	shell : '''
+
+   wget -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+   mv {output}.gz.incomplete {output}.gz
+   # gunzip fails with "decompression OK, trailing garbage ignored"
+   # because the file is razf-compressed (gzip-compatible, but with an
+   # index at end)
+   gunzip -f {output}.gz || true
+   md5sum -c MD5SUM '''
