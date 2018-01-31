@@ -61,7 +61,8 @@ rule download_bam_vcf :
 
         input :
 		bam = basedir + '/data/file.bam',
-		vcf = basedir + '/data/file.vcf',
+		vcf = basedir + '/data/file.vcf'
+
 	shell : '''
    cp {input.bam} {input.vcf} {datadir}
  '''

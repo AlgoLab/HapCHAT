@@ -18,7 +18,6 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     git checkout docker && \
     ./setup.sh
 
-
-ENTRYPOINT ["snakemake -s ./example/Snakefile"]
-
-CMD [""]
+WORKDIR  "/HapCHAT"
+ENTRYPOINT ["/usr/bin/snakemake"]
+CMD [" -s /HapCHAT/example/Snakefile"]
