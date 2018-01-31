@@ -1,13 +1,13 @@
 basedir = '..'
-datadir = basedir + '/data'
+datadir = basedir + '/../data'
 core = basedir + '/software/hapchat/hapchat'
 hapchat = basedir + '/HapCHAT.py'
 
 # master rule
 rule master :
 	input :
-		'out.phased.vcf',
-		'out.realigned.phased.vcf'
+		datadir + '/out.phased.vcf',
+		datadir + '/out.realigned.phased.vcf'
 
 # auxiliary rules
 #----------------------------------------------------------------------
@@ -18,7 +18,7 @@ rule run_hapchat :
 		vcf = datadir + '/file.vcf',
 		core = core # just to ensure that it exists before running
 
-	output : 'out.phased.vcf'
+	output : datadir + '/out.phased.vcf'
 
 	shell : '{hapchat} {input.vcf} {input.bam} > {output}'
 
@@ -26,10 +26,10 @@ rule run_hapchat_realignment :
 	input :
 		bam = datadir + '/file.bam',
 		vcf = datadir + '/file.vcf',
-		fasta = 'human_g1k_v37.fasta',
+		fasta = datadir + '/genome.fasta',
 		core = core
 		
-	output : 'out.realigned.phased.vcf'
+	output : datadir + '/out.realigned.phased.vcf'
 
 	shell : '''
 
@@ -42,7 +42,7 @@ rule setup_hapchat :
 
 rule download_reference :
 	output :
-		'human_g1k_v37.fasta'
+		datadir + '/genome.fasta'
 
 	shell : '''
 
@@ -53,3 +53,15 @@ rule download_reference :
    # index at end)
    gunzip -f {output}.gz || true
    md5sum -c MD5SUM '''
+
+rule download_bam_vcf :
+	output :
+		datadir + '/file.bam',
+                datadir + '/file.vcf'
+
+        input :
+		bam = basedir + '/data/file.bam',
+		vcf = basedir + '/data/file.vcf',
+	shell : '''
+   cp {input.bam} {input.vcf} {datadir}
+ '''
