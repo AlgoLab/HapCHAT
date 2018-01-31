@@ -1,0 +1,26 @@
+basedir = '..'
+datadir = basedir + '/data'
+core = basedir + '/software/hapchat/hapchat'
+hapchat = basedir + '/HapCHAT.py'
+
+# master rule
+rule master :
+	input :
+		'out.phased.vcf'
+
+# auxiliary rules
+#----------------------------------------------------------------------
+
+rule run_hapchat :
+	input :
+		bam = datadir + '/file.bam',
+		vcf = datadir + '/file.vcf',
+		core = core # just to ensure that it exists before running
+
+	output : 'out.phased.vcf'
+
+	shell : '{hapchat} {input.vcf} {input.bam} > {output}'
+
+rule setup_hapchat :
+	output : core
+	shell : 'bash {basedir}/setup.sh'
