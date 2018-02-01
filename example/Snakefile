@@ -1,4 +1,4 @@
-basedir = '..'
+basedir = '.'
 datadir = basedir + '/../data'
 core = basedir + '/software/hapchat/hapchat'
 hapchat = basedir + '/HapCHAT.py'
@@ -52,17 +52,18 @@ rule download_reference :
    # because the file is razf-compressed (gzip-compatible, but with an
    # index at end)
    gunzip -f {output}.gz || true
-   md5sum -c MD5SUM '''
+   md5sum -c {basedir}/data/MD5SUM '''
 
 rule download_bam_vcf :
-	output :
-		datadir + '/file.bam',
-                datadir + '/file.vcf'
-
-        input :
+	input :
 		bam = basedir + '/data/file.bam',
 		vcf = basedir + '/data/file.vcf'
+                
+	output :
+		bam = datadir + '/file.bam',
+                vcf = datadir + '/file.vcf'
 
 	shell : '''
-   cp {input.bam} {input.vcf} {datadir}
+   test -f {output.bam} || cp {input.bam} {datadir} && touch {output.bam}
+   test -f {output.vcf} || cp {input.vcf} {datadir} && touch {output.vcf}
  '''

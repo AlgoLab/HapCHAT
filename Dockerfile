@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
     python3-networkx \
     snakemake \
     virtualenv \
+    wget \
     zlib1g-dev
 
 VOLUME ["/data"]
@@ -19,5 +20,5 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     ./setup.sh
 
 WORKDIR  "/HapCHAT"
-ENTRYPOINT ["/usr/bin/snakemake"]
-CMD [" -s /HapCHAT/example/Snakefile"]
+ENTRYPOINT ["/bin/bash"]
+#CMD [" -s example/Snakefile"]
