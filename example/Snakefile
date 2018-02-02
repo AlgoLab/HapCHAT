@@ -1,7 +1,7 @@
-basedir = '.'
-datadir = basedir + '/../data'
-core = basedir + '/software/hapchat/hapchat'
-hapchat = basedir + '/HapCHAT.py'
+basedir = '/HapCHAT'
+datadir =  '/data'
+core =  basedir + '/software/hapchat/hapchat'
+hapchat =  '/HapCHAT.py'
 
 # master rule
 rule master :
@@ -56,8 +56,8 @@ rule download_reference :
 
 rule download_bam_vcf :
 	input :
-		bam = basedir + '/data/file.bam',
-		vcf = basedir + '/data/file.vcf'
+		bam = basedir + '/example/file.bam',
+		vcf = basedir + '/example/file.vcf'
                 
 	output :
 		bam = datadir + '/file.bam',
