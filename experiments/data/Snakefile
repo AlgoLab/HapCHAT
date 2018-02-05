@@ -78,6 +78,10 @@ rule shapeit_missing :
    echo
    echo "Go to https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html#download ,"
    echo "download version v2.r837 (shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz),"
+   echo "this can be done e.g., by running"
+   echo
+   echo "   wget https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz"
+   echo
    echo "unpack the tgz file and place the bin/shapeit binary into '{shapeit}'."
    echo "Then re-run snakemake."
    echo
