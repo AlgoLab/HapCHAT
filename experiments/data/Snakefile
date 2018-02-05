@@ -277,6 +277,12 @@ rule unphase :
 	output : '{base}.unphased.vcf'
 	shell : '{whatshap} unphase {input} > {output}'
 
+
+rule copy_unphased_vcf :
+	input : 'vcf/sim.' + pattern + '.unphased.vcf',
+	output : 'vcf/ashk.' + pattern + '.unphased.vcf'
+	shell : 'cp {input} {output}'
+
 #
 # infer phasing with SHAPEIT
 #----------------------------------------------------------------------
