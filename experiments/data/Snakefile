@@ -41,6 +41,7 @@ shapeit = 'restricted-software/shapeit'
 
 # common patterns
 pattern = '{individual,(mother|father|child)}.chr{chromosome,[0-9]+}'
+hap_pattern = pattern + '.haplotype{hap,[12]}'
 platform_pattern = '{platform,[a-z]+}.' + pattern
 dataset_pattern = '{dataset,[a-z]+}.' + platform_pattern
 coverage_pattern = platform_pattern + '.cov{coverage,(all|[0-9]+)}'
@@ -83,6 +84,7 @@ rule shapeit_missing :
    exit 1 '''
 
 
+trio_url = 'ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio'
 rule download_ashkenazim :
 	threads : 100
 	output :
@@ -90,15 +92,16 @@ rule download_ashkenazim :
 
 	shell : '''
 
-   wget -O {output} ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio/{wildcards.file}.{wildcards.ext} '''
+   wget -O {output} {trio_url}/{wildcards.file}.{wildcards.ext} '''
 
 
+reference_url = 'ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37'
 rule download_reference :
 	output : 'reference/human_g1k_v37.fasta'
 
 	shell : '''
 
-   wget -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+   wget -O {output}.gz.incomplete {reference_url}.fasta.gz
    mv {output}.gz.incomplete {output}.gz
    # gunzip fails with "decompression OK, trailing garbage ignored" because
    # the file is razf-compressed (gzip-compatible, but with an index at end)
@@ -130,7 +133,7 @@ def ashkenazim_trio_bam(wildcards) :
 rule create_ashk_pacbio_links :
 	input : ashkenazim_trio_bam
 
-	output : 'bam/incorrect-readgroup/ashk.pacbio.{individual}.chr{chromosome,[0-9]+}.covall.{ext,(bam|bam.bai)}'
+	output : 'bam/incorrect-readgroup/ashk.pacbio.' + pattern + '.covall.{ext,(bam|bam.bai)}'
 
 	shell: 'ln -fsrv {input} {output}'
 
@@ -239,8 +242,9 @@ rule bam_to_fastq :
 #
 # prepare the downloaded VCF files: extract a chromosome, filter, etc.
 #----------------------------------------------------------------------
+vcf_path = 'download/AshkenazimTrio/analysis/NIST_CallsIn2Technologies_05182015'
 rule unzip_vcf :
-	input : 'download/AshkenazimTrio/analysis/NIST_CallsIn2Technologies_05182015/HG{id}-multiall-fullcombine.vcf.gz'
+	input : vcf_path + '/HG{id}-multiall-fullcombine.vcf.gz'
 
 	output : 'unphased-ashk/HG{id,[0-9]+}-multiall-fullcombine.vcf'
 	shell : 'zcat {input} > {output}'
@@ -257,14 +261,20 @@ rule filter_vcfs :
 	message : 'Filtering and merging input VCFs to create {output}'
 	version : 2
 
-	shell : r"{vcf_merge_trio} {input.mother} {input.father} {input.child} | sed '/^[^#]/ s| |\t|g; s_0|1_0/1_g; s_1|0_0/1_g; s_1/0_0/1_g; s_1|1_1/1_g; s_0|0_0/0_g' > {output} 2> {log}"
+	shell : r"""
+
+   {vcf_merge_trio} {input.mother} {input.father} {input.child} | \
+      sed '/^[^#]/ s| |\t|g; s_0|1_0/1_g; s_1|0_0/1_g; s_1/0_0/1_g; s_1|1_1/1_g; s_0|0_0/0_g' \
+      > {output} 2> {log} """
 
 
 rule split_vcf :
 	input : 'vcf/ashk.trio.unphased.vcf'
 	output : 'vcf/ashk.trio.chr{chromosome,[0-9]+}.unphased.vcf'
 	message : 'Extracting chromosome {wildcards.chromosome} from {input}'
-	shell : '''awk '/^#/ || ($1 == "{wildcards.chromosome}")' {input} > {output}'''
+	shell : '''
+
+   awk '/^#/ || ($1 == "{wildcards.chromosome}")' {input} > {output} '''
 
 
 rule unphase :
@@ -275,19 +285,19 @@ rule unphase :
 #
 # compute "ground truth" phasing with SHAPEIT
 #----------------------------------------------------------------------
+KGP_path = 'download/1000GP_Phase3'
+KGP_url = 'http://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3'
 rule download_1000GP :
-	output : 'download/1000GP_Phase3/{filename}'
-	shell : '''
-
-   wget -O {output} http://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3/{wildcards.filename} '''
+	output : KGP_path + '/{filename}'
+	shell : 'wget -O {output} {KGP_url}/{wildcards.filename}'
 
 
 rule shapeit_check :
 	input :
-		legend = 'download/1000GP_Phase3/1000GP_Phase3_chr{chromosome,[0-9]+}.legend.gz',
-		genmap = 'download/1000GP_Phase3/genetic_map_chr{chromosome,[0-9]+}_combined_b37.txt',
-		refhaps = 'download/1000GP_Phase3/1000GP_Phase3_chr{chromosome,[0-9]+}.hap.gz',
-		refsamples = 'download/1000GP_Phase3/1000GP_Phase3.sample',
+		legend = KGP_path + '/1000GP_Phase3_chr{chromosome,[0-9]+}.legend.gz',
+		genmap = KGP_path + '/genetic_map_chr{chromosome,[0-9]+}_combined_b37.txt',
+		refhaps = KGP_path + '/1000GP_Phase3_chr{chromosome,[0-9]+}.hap.gz',
+		refsamples = KGP_path + '/1000GP_Phase3.sample',
 		vcf = 'vcf/ashk.trio.chr{chromosome,[0-9]+}.unphased.vcf',
 		shapeit = shapeit,
 
@@ -306,10 +316,10 @@ rule shapeit_check :
 
 rule shapeit :
 	input :
-		legend = 'download/1000GP_Phase3/1000GP_Phase3_chr{chromosome,[0-9]+}.legend.gz',
-		genmap = 'download/1000GP_Phase3/genetic_map_chr{chromosome,[0-9]+}_combined_b37.txt',
-		refhaps = 'download/1000GP_Phase3/1000GP_Phase3_chr{chromosome,[0-9]+}.hap.gz',
-		refsamples = 'download/1000GP_Phase3/1000GP_Phase3.sample',
+		legend = KGP_path + '/1000GP_Phase3_chr{chromosome,[0-9]+}.legend.gz',
+		genmap = KGP_path + '/genetic_map_chr{chromosome,[0-9]+}_combined_b37.txt',
+		refhaps = KGP_path + '/1000GP_Phase3_chr{chromosome,[0-9]+}.hap.gz',
+		refsamples = KGP_path + '/1000GP_Phase3.sample',
 		vcf = 'vcf/ashk.trio.chr{chromosome,[0-9]+}.unphased.vcf',
 		exclude = 'shapeit/trio.chr{chromosome,[0-9]+}.snp.strand.exclude',
 		shapeit = shapeit,
@@ -394,13 +404,13 @@ rule sim_fastas :
 rule simulate_pacbio_reads :
 	input :
 		sample = 'fastq/ashk.pacbio.' + pattern + '.cov2.fastq',
-		haplotype = 'sim/sim.' + pattern + '.haplotype{hap}.true.fasta'
+		haplotype = 'sim/sim.' + hap_pattern + '.true.fasta'
 
 	output :
-		fastq = 'sim/sim.' + pattern + '.haplotype{hap,[12]}.fastq.gz',
-		maf = 'sim/sim.' + pattern + '.haplotype{hap,[12]}.maf.gz'
+		fastq = 'sim/sim.' + hap_pattern + '.fastq.gz',
+		maf = 'sim/sim.' + hap_pattern + '.maf.gz'
 
-	log : 'sim/sim.' + pattern + '.haplotype{hap,[12]}.fastq.log'
+	log : 'sim/sim.' + hap_pattern + '.fastq.log'
 
 	run :
 		coverage = 60
@@ -409,32 +419,32 @@ rule simulate_pacbio_reads :
 		shell('''
 
    time (pbsim --seed {seed} \
-      --prefix sim/tmp/sim.{wildcards.individual}.chr{wildcards.chromosome}.haplotype{wildcards.hap} \
+      --prefix sim/tmp/sim.''' + hap_pattern + ''' \
       --depth {coverage} --sample-fastq {input.sample} \
       {input.haplotype}) > {log} 2>&1 ''')
 		shell('''
 
    awk \'NR%4==1 {{printf("%s_HAP{wildcards.hap}\\n",$0)}} \
       NR%4!=1 {{print}}\' \
-      sim/tmp/sim.{wildcards.individual}.chr{wildcards.chromosome}.haplotype{wildcards.hap}_0001.fastq | \
+      sim/tmp/sim.''' + hap_pattern + '''_0001.fastq | \
       {gzip} > {output.fastq} ''')
 		shell('''
 
-   cat sim/tmp/sim.{wildcards.individual}.chr{wildcards.chromosome}.haplotype{wildcards.hap}_0001.maf | \
+   cat sim/tmp/sim.''' + hap_pattern + '''_0001.maf | \
       {gzip} > {output.maf} ''')
 		shell('''
 
-   rm -f sim/tmp/sim.{wildcards.individual}.chr{wildcards.chromosome}.haplotype{wildcards.hap}_* ''')
+   rm -f sim/tmp/sim.''' + hap_pattern + '''_* ''')
 
 
 rule bwa_mem_single_end_pacbio :
 	input :
-		fastq = 'sim/sim.{individual,(mother|father|child)}.chr{chromosome,[0-9]+}.haplotype{hap,[12]}.fastq.gz',
+		fastq = 'sim/sim.' + hap_pattern + '.fastq.gz',
 		ref = reference,
 		indexed = reference + '.bwt'
 
-	output : 'sim/sim.' + pattern + '.haplotype{hap,[12]}.bam'
-	log : 'sim/sim.' + pattern + '.haplotype{hap,[12]}.bam.log'
+	output : 'sim/sim.' + hap_pattern + '.bam'
+	log : 'sim/sim.' + hap_pattern + '.bam.log'
 	threads : 16
 
 	run:
