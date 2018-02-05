@@ -287,7 +287,7 @@ rule unphase :
 	shell : '{whatshap} unphase {input} > {output}'
 
 #
-# compute "ground truth" phasing with SHAPEIT
+# infer phasing with SHAPEIT
 #----------------------------------------------------------------------
 KGP_path = 'download/1000GP_Phase3'
 KGP_url = 'http://mathgen.stats.ox.ac.uk/impute/1000GP_Phase3'
@@ -363,21 +363,15 @@ rule shapeit_convert_to_vcf :
 
 rule split_shapeit_vcf :
 	input : 'shapeit/trio.chr{chromosome,[0-9]+}.phased.vcf'
-	output : 'vcf/ashk.' + pattern + '.phased.vcf'
-	log: 'vcf/ashk.' + pattern + '.phased.vcf.log'
+	output : 'vcf/sim.' + pattern + '.phased.vcf'
+	log: 'vcf/sim.' + pattern + '.phased.vcf.log'
 	run :
 		sample = role_to_sampleid[wildcards.individual]
 		shell('vcf-subset -c {sample} {input} > {output} 2> {log}')
 
 #
-# pipeline for simulating reads off of "ground truth" phasing
+# pipeline for simulating reads off of the phasing inferred by SHAPEIT
 #----------------------------------------------------------------------
-rule copy_sim :
-	input : 'vcf/ashk.' + pattern + '.phased.vcf'
-	output : 'vcf/sim.' + pattern + '.phased.vcf'
-	shell : 'ln -fsrv {input} {output}'
-
-
 rule sim_fastas :
 	input :
 		ref = reference,
