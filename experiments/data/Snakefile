@@ -408,25 +408,29 @@ rule simulate_pacbio_reads :
 		coverage = 60
 		seed = abs(hash(output.fastq))
 		shell('mkdir -p sim/tmp')
+		hp = '{}.chr{}.haplotype{}'.format(
+			wildcards.individual,
+			wildcards.chromosome,
+			wildcards.hap)
 		shell('''
 
    time (pbsim --seed {seed} \
-      --prefix sim/tmp/sim.''' + hap_pattern + ''' \
+      --prefix sim/tmp/sim.{hp} \
       --depth {coverage} --sample-fastq {input.sample} \
       {input.haplotype}) > {log} 2>&1 ''')
 		shell('''
 
    awk \'NR%4==1 {{printf("%s_HAP{wildcards.hap}\\n",$0)}} \
       NR%4!=1 {{print}}\' \
-      sim/tmp/sim.''' + hap_pattern + '''_0001.fastq | \
+      sim/tmp/sim.{hp}_0001.fastq | \
       {gzip} > {output.fastq} ''')
 		shell('''
 
-   cat sim/tmp/sim.''' + hap_pattern + '''_0001.maf | \
+   cat sim/tmp/sim.{hp}_0001.maf | \
       {gzip} > {output.maf} ''')
 		shell('''
 
-   rm -f sim/tmp/sim.''' + hap_pattern + '''_* ''')
+   rm -f sim/tmp/sim.{hp}_* ''')
 
 
 rule bwa_mem_single_end_pacbio :
