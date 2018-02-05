@@ -173,19 +173,13 @@ rule calculate_avg_read_length :
 
 def downsampling_source(wildcards) :
 
-	chr = wildcards.chromosome
 	dest_cov = int(wildcards.coverage)
-
 	source_cov = 'all'
-	if chr == '1' :
-		if 2 < dest_cov < 60 :
-			source_cov = dest_cov + 5
-	elif chr == '21' :
-		if 2 < dest_cov < 50 :
-			source_cov = dest_cov + 5
+	if 2 < dest_cov < 60 :
+		source_cov = dest_cov + 5
 
 	filebody = '{}.pacbio.{}.chr{}.cov{}'.format(
-		wildcards.dataset, wildcards.individual, chr, source_cov)
+		wildcards.dataset, wildcards.individual, wildcards.chromosome, source_cov)
 
 	return { 'bam'      : 'bam/{}.bam'.format(filebody),
 		 'coverage' : 'stats/bam/{}.coverage'.format(filebody) }
