@@ -71,11 +71,11 @@ rule shapeit_missing :
    echo "Due to licensing restrictions, you need to manually download "
    echo "shapeit and make it available to this pipeline."
    echo
-   echo "Go to https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html#download ,"
-   echo "download version v2.r837 (shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz),"
-   echo "this can be done e.g., by running"
-   echo
-   echo "   wget https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz"
+   echo "Go to https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html"
+   echo "and download version v2.r837 (shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz),"
+   echo "this can be done e.g., by removing the 'shapeit.html' at the end of the"
+   echo "URL and replacing it with shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz"
+   echo "and your browser will prompt you to download a tgz file"
    echo
    echo "unpack the tgz file and place the bin/shapeit binary into '{shapeit}'."
    echo "Then re-run snakemake."

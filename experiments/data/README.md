@@ -17,14 +17,18 @@ dependencies need to be installed first.  Further things to know:
 
 * About 600 GB of hard disk space is needed (better 1 TB to be on the
   safe side).
+
 * No data is included in this repository since all required files will
   be downloaded.
+
 * About 100 GB of data will be downloaded. Most of this is BAM files
   from the Genome in a Bottle dataset, but also the human genome
   reference (hg37).
+
 * The pipeline requires proprietary software which we cannot download
   and install automatically, so those tools need to be installed
   manually.
+
 * 8 cores should work, but more is better. Presumably 8 GB RAM works,
   but more is better.  We tested on a 32-core machine with 256 GB RAM.
 
@@ -35,8 +39,11 @@ The workflow uses the statistical-phasing tool
 way that it is licensed.  Before starting the workflow, you need to
 install SHAPEIT manually.  To do so:
 
-* Download version v2.r837 of SHAPEIT at
-  [link](https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz).
+* Download version v2.r837 of SHAPEIT by going to its
+  [webpage](https://mathgen.stats.ox.ac.uk/genetics_software/shapeit/shapeit.html),
+  and then in the URL field, replace `shapeit.html` at the end of the
+  URL with `shapeit.v2.r837.GLIBCv2.12.Linux.static.tgz`, and your
+  browser will prompt to you download a tgz file
 
 * Unpack the tgz file and place the `shapeit` binary that it contains
   into `restricted-software/`.
