@@ -1,14 +1,3 @@
-'''
-
-   How to re-run this workflow
-   -------------------------------------------------------------------------------
-
-   Install dependencies:
-    - see README
-    - make 'shapeit' binary available
-
-'''
-
 import pysam
 import textwrap
 
