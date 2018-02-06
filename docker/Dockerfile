@@ -19,6 +19,6 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     git checkout docker && \
     ./setup.sh
 
-WORKDIR  "/HapCHAT"
+WORKDIR  "/HapCHAT/example"
 ENTRYPOINT ["/bin/bash"]
 #CMD [" -s example/Snakefile"]
