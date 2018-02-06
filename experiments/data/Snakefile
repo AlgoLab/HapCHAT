@@ -41,14 +41,15 @@ full_pattern = '{dataset,[a-z]+}.' + coverage_pattern
 #----------------------------------------------------------------------
 rule master :
 	input :
-		expand('stats/bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.coverage',
+		expand('bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.bam',
 			dataset = datasets,
 			chromosome = chromosomes,
 			cov = [25]), # downsample until avg cov 25
 
-		expand('vcf/{dataset}.child.chr{chromosome}.unphased.vcf',
+		expand('vcf/{dataset}.child.chr{chromosome}.{phases}.vcf',
 			dataset = datasets,
-			chromosome = chromosomes),
+			chromosome = chromosomes,
+			phases = ['phased', 'unphased']),
 
 #
 # obtain external dependencies: software and data files
