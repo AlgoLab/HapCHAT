@@ -1,7 +1,4 @@
-basedir = '/HapCHAT'
-datadir =  '/data'
-core =  basedir + '/software/hapchat/hapchat'
-hapchat =  '/HapCHAT.py'
+datadir = '.' if 'datadir' not in config else config['datadir']
 
 # master rule
 rule master :
@@ -15,34 +12,28 @@ rule master :
 rule run_hapchat :
 	input :
 		bam = datadir + '/file.bam',
-		vcf = datadir + '/file.vcf',
-		core = core # just to ensure that it exists before running
+		vcf = datadir + '/file.vcf'
 
 	output : datadir + '/out.phased.vcf'
 
-	shell : '{hapchat} {input.vcf} {input.bam} > {output}'
+	shell : '../HapCHAT.py {input.vcf} {input.bam} > {output}'
 
 rule run_hapchat_realignment :
 	input :
 		bam = datadir + '/file.bam',
 		vcf = datadir + '/file.vcf',
-		fasta = datadir + '/genome.fasta',
-		core = core
-		
+		fasta = datadir + '/genome.fasta'
+
 	output : datadir + '/out.realigned.phased.vcf'
 
 	shell : '''
 
-   {hapchat} --reference {input.fasta} \
+   ../HapCHAT.py --reference {input.fasta} \
       {input.vcf} {input.bam} > {output} '''
 
-rule setup_hapchat :
-	output : core
-	shell : 'bash {basedir}/setup.sh'
-
 rule download_reference :
-	output :
-		datadir + '/genome.fasta'
+	input : datadir + '/MD5SUM'
+	output : datadir + '/genome.fasta'
 
 	shell : '''
 
@@ -52,18 +43,9 @@ rule download_reference :
    # because the file is razf-compressed (gzip-compatible, but with an
    # index at end)
    gunzip -f {output}.gz || true
-   md5sum -c {basedir}/data/MD5SUM '''
+   md5sum -c {input} '''
 
-rule download_bam_vcf :
-	input :
-		bam = basedir + '/example/file.bam',
-		vcf = basedir + '/example/file.vcf'
-                
-	output :
-		bam = datadir + '/file.bam',
-                vcf = datadir + '/file.vcf'
-
-	shell : '''
-   test -f {output.bam} || cp {input.bam} {datadir} && touch {output.bam}
-   test -f {output.vcf} || cp {input.vcf} {datadir} && touch {output.vcf}
- '''
+rule transfer_file :
+	input : '{file}'
+	output : datadir + '/{file}'
+	shell : 'cp {input} {output}'
