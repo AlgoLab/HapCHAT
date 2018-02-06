@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
     python3-biopython-sql \
     python3-dev \
     python3-networkx \
+    samtools \
     snakemake \
     virtualenv \
     wget \
