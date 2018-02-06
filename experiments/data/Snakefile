@@ -51,6 +51,14 @@ rule master :
 			chromosome = chromosomes,
 			phases = ['phased', 'unphased']),
 
+rule stats :
+	input :
+		expand('stats/bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.{ext}',
+			dataset = datasets,
+			chromosome = chromosomes,
+			cov = range(25,65,5),
+			ext = ['coverage', 'avgrlen'])
+
 #
 # obtain external dependencies: software and data files
 #----------------------------------------------------------------------
@@ -174,8 +182,7 @@ def downsampling_source(wildcards) :
 		wildcards.dataset, wildcards.individual, wildcards.chromosome, source_cov)
 
 	return { 'bam'      : 'bam/{}.bam'.format(filebody),
-		 'coverage' : 'stats/bam/{}.coverage'.format(filebody),
-		 'avgrlen'  : 'stats/bam/{}.avgrlen'.format(filebody)}
+		 'coverage' : 'stats/bam/{}.coverage'.format(filebody)}
 
 
 rule downsample :
