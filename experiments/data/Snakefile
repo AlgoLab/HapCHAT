@@ -263,15 +263,13 @@ rule split_vcf :
 
 
 rule unphase :
-	input : '{base}.phased.vcf'
-	output : '{base}.unphased.vcf'
-	shell : '{whatshap} unphase {input} > {output}'
+	input : 'vcf/sim.' + pattern + '.phased.vcf'
+	output :
+		sim = 'vcf/sim.' + pattern + '.unphased.vcf',
+		ashk = 'vcf/ashk.' + pattern + '.unphased.vcf'
 
+	shell : '{whatshap} unphase {input} | tee {output} > /dev/null'
 
-rule copy_unphased_vcf :
-	input : 'vcf/sim.' + pattern + '.unphased.vcf',
-	output : 'vcf/ashk.' + pattern + '.unphased.vcf'
-	shell : 'cp {input} {output}'
 
 #
 # infer phasing with SHAPEIT
