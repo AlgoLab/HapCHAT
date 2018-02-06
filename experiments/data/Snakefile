@@ -74,7 +74,7 @@ rule shapeit_missing :
    exit 1 '''
 
 
-trio_url = 'ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp/data/AshkenazimTrio'
+giab_ftp = 'ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp'
 rule download_ashkenazim :
 	threads : 100
 	output :
@@ -82,7 +82,12 @@ rule download_ashkenazim :
 
 	shell : '''
 
-   wget -O {output} {trio_url}/{wildcards.file}.{wildcards.ext} '''
+   wget -O {output} {giab_ftp}/data/AshkenazimTrio/{wildcards.file}.{wildcards.ext} '''
+
+
+rule download_highconf :
+	output : 'download/highconf/{file}.vcf.gz'
+	shell : 'wget -O {output} {giab_ftp}/{wildcards.file}.vcf.gz'
 
 
 reference_url = 'ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37'
@@ -230,8 +235,15 @@ rule bam_to_fastq :
 vcf_path = 'download/AshkenazimTrio/analysis/NIST_CallsIn2Technologies_05182015'
 rule unzip_vcf :
 	input : vcf_path + '/HG{id}-multiall-fullcombine.vcf.gz'
-
 	output : 'unphased-ashk/HG{id,[0-9]+}-multiall-fullcombine.vcf'
+	shell : 'zcat {input} > {output}'
+
+
+highconf_path = 'download/highconf/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh37'
+highconf_basename = 'HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased'
+rule unzip_highconf :
+	input : highconf_path + '/' + highconf_basename + '.vcf.gz'
+	output : 'vcf/ashk.child.phased.vcf'
 	shell : 'zcat {input} > {output}'
 
 
@@ -254,8 +266,8 @@ rule filter_vcfs :
 
 
 rule split_vcf :
-	input : 'vcf/ashk.trio.unphased.vcf'
-	output : 'vcf/ashk.trio.chr{chromosome,[0-9]+}.unphased.vcf'
+	input : 'vcf/ashk.{entity}.{phase}.vcf'
+	output : 'vcf/ashk.{entity,(trio|child)}.chr{chromosome,[0-9]+}.{phase,(unphased|phased)}.vcf'
 	message : 'Extracting chromosome {wildcards.chromosome} from {input}'
 	shell : '''
 
