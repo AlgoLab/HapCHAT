@@ -52,10 +52,10 @@ full_pattern = '{dataset,[a-z]+}.' + coverage_pattern
 #----------------------------------------------------------------------
 rule master :
 	input :
-		expand('stats/bam/{dataset}.pacbio.child.chr{chromosome}.covall.{ext}',
+		expand('stats/bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.coverage',
 			dataset = datasets,
 			chromosome = chromosomes,
-			ext = ['coverage', 'avgrlen']),
+			cov = [25]), # downsample until avg cov 25
 
 		expand('vcf/{dataset}.child.chr{chromosome}.unphased.vcf',
 			dataset = datasets,
@@ -179,7 +179,8 @@ def downsampling_source(wildcards) :
 		wildcards.dataset, wildcards.individual, wildcards.chromosome, source_cov)
 
 	return { 'bam'      : 'bam/{}.bam'.format(filebody),
-		 'coverage' : 'stats/bam/{}.coverage'.format(filebody) }
+		 'coverage' : 'stats/bam/{}.coverage'.format(filebody),
+		 'avgrlen'  : 'stats/bam/{}.avgrlen'.format(filebody)}
 
 
 rule downsample :
