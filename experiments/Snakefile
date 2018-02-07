@@ -253,18 +253,28 @@ rule run_whatshap :
 #
 # run hapchat with increase-k and balancing on a wif file
 #----------------------------------------------------------------------
+def hapchat_params(wildcards) :
+
+	e,a = wildcards.ea.split('_')
+	c,r = wildcards.balancing.split('_')
+
+	cov = c.split('b')[1]
+	if cov == 'N' :
+		cov = '1000'
+
+	return { 'epsilon' : '0' + e,
+		 'alpha' : '0.' + a,
+		 'balance_cov' : cov,
+		 'balance_ratio' : '0.' + r }
+
 rule run_hapchat :
 	input : 'wif/' + post_pattern + '.wif'
 
 	params :
-		epsilon = lambda wildcards :
-			'0' + wildcards.ea.split('_')[0],
-		alpha = lambda wildcards :
-			'0.' + wildcards.ea.split('_')[1],
-		balance_cov = lambda wildcards :
-			'1000' if wildcards.balancing.split('_')[0].split('b')[1] == 'N' else wildcards.balancing.split('_')[0].split('b')[1],
-		balance_ratio = lambda wildcards :
-			'0.' + wildcards.balancing.split('_')[1]
+		epsilon = lambda wildcards : hapchat_params(wildcards)['epsilon'],
+		alpha = lambda wildcards : hapchat_params(wildcards)['alpha'],
+		balance_cov = lambda wildcards : hapchat_params(wildcards)['balance_cov'],
+		balance_ratio = lambda wildcards : hapchat_params(wildcards)['balance_ratio']
 
 	output :
 		hap = 'output/hapchat/' + full_pattern + '.hap',
