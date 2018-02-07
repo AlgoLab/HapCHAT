@@ -90,21 +90,15 @@ methods_pattern = '{method,(' + list_regex(all_methods) + ')}'
 output_pattern = methods_pattern + '/' + full_pattern
 
 #
-# useful lists and list-defining functions
+# useful list-defining functions
 #----------------------------------------------------------------------
 
-# list of files we need to generate
-datasets = ['{}.pacbio.child.chr{}.cov{}'.format(data, chromosome, coverage)
-	for data in data
-	for chromosome in chromosomes
-	for coverage in chr_covs[chromosome]]
-
-simulated = ['{}.pacbio.child.chr{}.cov{}'.format(data, chromosome, coverage)
-	for data in ['sim']
-	for chromosome in chromosomes
-	for coverage in chr_covs[chromosome]]
-
-
+# datasets we need to generate
+def datasets(data_, chromosomes_) :
+	return ['{}.pacbio.child.chr{}.cov{}'.format(datum_, chromosome_, coverage_)
+		for datum_ in data_
+		for chromosome_ in chromosomes_
+		for coverage_ in chr_covs[chromosome_]]
 
 # datasets processed by whatshap to a specified list of max cov.
 def whatshap(datasets_, modes_, maxs_) :
@@ -146,27 +140,40 @@ def hairs(datasets_, modes_, indelmodes_) :
 #
 # master rule
 #----------------------------------------------------------------------
+
 rule master :
 	input :
 		expand('output/whatshap/{pattern}.diff',
-			pattern = whatshap(datasets, ['realigned'],
-				[15, 20, 25])),
+			pattern = whatshap(
+					datasets(data, chromosomes),
+					['realigned'],
+					[15, 20, 25])),
 
 		expand('output/hapcol/{pattern}.diff',
-			pattern = whatshap(datasets, ['raw'],
-				[15, 20, 25, 30])),
+			pattern = whatshap(
+                                	datasets(data, chromosomes),
+                                      	['raw'],
+					[15, 20, 25, 30])),
 
 		expand('output/hapchat/{pattern}.05_01.bN_0.{ext}',
-			pattern = postproc(datasets, ['realigned'], [6], [3],
-				[15, 20, 25, 30, 35, 40]),
+			pattern = postproc(
+					datasets(data, chromosomes),
+					['realigned'], [6], [3],
+					[15, 20, 25, 30, 35, 40]),
 			ext = ['diff', 'inc']),
 
 		expand('output/hapcut2/{pattern}.diff',
-			pattern = hairs(simulated, modes, indelmodes)),
+			pattern = hairs(
+					datasets(['sim'], chromosomes),
+					modes,
+					indelmodes)),
 
 		expand('output/{method}/{pattern}.diff',
 			method = sih_methods + ['probhap'],
-			pattern = hairs(datasets, ['raw'], indelmodes))
+			pattern = hairs(
+					datasets(data, chromosomes),
+					['raw'],
+                        		indelmodes)),
 
 #
 # run whatshap on a bam / vcf pair
