@@ -501,7 +501,6 @@ rule increments :
 rule get_wif :
 	input :
 		bam = 'data/bam/' + dataset_pattern + '.bam',
-		bai = 'data/bam/' + dataset_pattern + '.bai',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
 
@@ -539,7 +538,6 @@ rule get_wif :
 rule get_hairs :
 	input :
 		bam = 'data/bam/' + dataset_pattern + '.bam',
-		bai = 'data/bam/' + dataset_pattern + '.bai',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
 
@@ -569,7 +567,6 @@ rule get_hairs :
 rule get_hairs2 :
 	input :
 		bam = 'data/bam/' + dataset_pattern + '.bam',
-		bai = 'data/bam/' + dataset_pattern + '.bai',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
 
