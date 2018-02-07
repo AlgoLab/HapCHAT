@@ -30,6 +30,7 @@ compare = 'programs/whatshap/venv/bin/whatshap compare'
 hapcut2vcf = 'programs/conversion/whatshap/venv/bin/whatshap hapcut2vcf'
 extract_hairs = 'programs/hapcut/extractHAIRS'
 extract_hairs2 = 'programs/HapCUT2/build/extractHAIRS'
+scriptsdir = '../scripts'
 
 # datasets
 data = ['ashk', 'sim']
@@ -471,7 +472,7 @@ rule compare_vcfs :
 # convert old-skool hap format to a phased vcf
 rule phase_vcf :
 	input :
-		script = 'scripts/subvcf.py',
+		script = scriptsdir + '/subvcf.py',
 		hap = 'output/' + hap_pattern + '/' + full_pattern + '.hap',
 		blocks = 'wif/' + post_pattern + '.wif.info_/block_sites_',
 		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf'
@@ -657,7 +658,7 @@ rule no_downsampling :
 # greedily downsample wif to a coverage according to a shuffle
 rule downsample :
 	input :
-		script = 'scripts/wiftools.py',
+		script = scriptsdir + '/wiftools.py',
 		wif = '{path}.wif',
 		shuf = '{path}.wif.lines.shuf{seed}'
 
@@ -705,7 +706,7 @@ rule get_lines :
 #----------------------------------------------------------------------
 rule merge_wif :
 	input :
-		script = 'scripts/rb-merge.py',
+		script = scriptsdir + '/rb-merge.py',
 		wif = '{path}.wif'
 
 	params :
@@ -752,7 +753,7 @@ rule no_merging :
 #----------------------------------------------------------------------
 rule wif_info :
 	input :
-		script = 'scripts/wiftools.py',
+		script = scriptsdir + '/wiftools.py',
 		wif = '{path}.wif'
 
 	output :
