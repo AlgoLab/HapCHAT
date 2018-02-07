@@ -16,11 +16,11 @@ _probhap_ = 'programs/ProbHap/probhap.py'
 memlimit = 64 * 1024 * 1024 # 64GB limit (in KB)
 timelimit = '24h' # 24 hour time limit
 
-# lists of methods by name
+# lists of the names of the methods
 sih_methods = ['refhap', 'fasthare']
-hapcut_methods = ['hapcut', 'hapcut2'] + sih_methods + ['probhap']
-all_methods = hapcut_methods + hap_methods + ['whatshap']
+hairs_methods = ['hapcut2', 'probhap'] + sih_methods
 hap_methods = ['hapcol', 'hapchat']
+all_methods = ['whatshap'] + hapcut_methods + hap_methods
 
 # auxiliary programs
 time = '/usr/bin/time'
@@ -86,7 +86,6 @@ sih_pattern = '{method,(' + list_regex(sih_methods) + ')}'
 hapcut_pattern = '{method,(' + list_regex(hapcut_methods) + ')}'
 hap_pattern = '{method,(' + list_regex(hap_methods) + ')}'
 methods_pattern = '{method,(' + list_regex(all_methods) + ')}'
-
 output_pattern = methods_pattern + '/' + full_pattern
 
 #
