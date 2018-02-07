@@ -43,7 +43,6 @@ rule download_reference :
    # because the file is razf-compressed (gzip-compatible, but with an
    # index at end)
    pigz -d -k {output}.gz
-   md5sum -c {input}
         '''
 
 rule transfer_file :
