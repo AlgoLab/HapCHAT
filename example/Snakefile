@@ -43,7 +43,7 @@ rule uncompress_reference :
 	output : datadir + '/genome.fasta'
         log:  datadir + "/download.log"
 	shell : '''
-   pigz -d -k {output}.gz
+   gunzip -k {output}.gz || /bin/true
         '''
 
 rule transfer_file :
