@@ -37,13 +37,14 @@ rule download_reference :
 
 	shell : '''
 
-   wget -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+   wget --quiet -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
    mv {output}.gz.incomplete {output}.gz
    # gunzip fails with "decompression OK, trailing garbage ignored"
    # because the file is razf-compressed (gzip-compatible, but with an
    # index at end)
    gunzip -f -k {output}.gz
-   md5sum -c {input} '''
+#   md5sum -c {input}
+        '''
 
 rule transfer_file :
 	input : '{file}'
