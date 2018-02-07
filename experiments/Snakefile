@@ -19,8 +19,8 @@ timelimit = '24h' # 24 hour time limit
 # lists of methods by name
 sih_methods = ['refhap', 'fasthare']
 hapcut_methods = ['hapcut', 'hapcut2'] + sih_methods + ['probhap']
-hap_methods = ['core_wh', 'hapcol', 'hapchat']
 all_methods = hapcut_methods + hap_methods + ['whatshap']
+hap_methods = ['hapcol', 'hapchat']
 
 # auxiliary programs
 time = '/usr/bin/time'
@@ -250,35 +250,14 @@ rule run_whatshap :
          {input.vcf} {input.bam} > {log.log} 2>&1 || true
    touch {output} '''
 
-#
-# run the core whatshap dp on a wif file
-#----------------------------------------------------------------------
-rule run_core_whatshap :
-	input : 'wif/' + post_pattern + '.wif'
-	output : 'output/core_wh/' + post_pattern + '.hap'
 
-	log :
-		log = 'output/core_wh/' + post_pattern + '.log',
-		time = 'output/core_wh/' + post_pattern + '.time',
-		wif = 'output/core_wh/' + post_pattern + '.wif'
 
-	message : '''
 
-   running core whatshap dp on :
 
-   {input}
 
-   with memory limit: {memlimit}K
 
-   with time limit: {timelimit} '''
 
-	shell : '''
 
-   ulimit -Sv {memlimit}
-   {time} -v -o {log.time} {timeout} {timelimit} \
-      {_corewh_} -h {output} -a {input} \
-         > {log.wif} 2> {log.log} || true
-   touch {output} '''
 
 #
 # run hapchat with increase-k and balancing on a wif file
