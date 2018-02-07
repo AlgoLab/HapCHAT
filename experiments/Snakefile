@@ -104,16 +104,7 @@ simulated = ['{}.pacbio.child.chr{}.cov{}'.format(data, chromosome, coverage)
 	for chromosome in chromosomes
 	for coverage in chr_covs[chromosome]]
 
-whatshap_downsample = ['{}.{}.h{}.no_merging.no_downs.no_merging'.format(dataset, mode, h)
-	for dataset in datasets
-	for mode in modes
-	for h in hs]
 
-post_whatshap = ['{}.{}.hN.{}.{}.no_merging'.format(dataset, mode, merging, downsampling)
-	for dataset in datasets
-	for mode in modes
-	for merging in mergings
-	for downsampling in downsamplings]
 
 # datasets processed by whatshap to a specified list of max cov.
 def whatshap(datasets_, modes_, maxs_) :
@@ -187,27 +178,6 @@ rule master :
 		expand('output/{method}/{pattern}.diff',
 			method = sih_methods + ['probhap'],
 			pattern = hairs(datasets, ['raw'], indelmodes))
-
-#
-# master rule
-#----------------------------------------------------------------------
-rule setup :
-	input :
-		expand('wif/{pattern}.wif.info_/block_sites_',
-			pattern = whatshap_downsample + post_whatshap),
-
-		expand('hairs/{pattern}.raw.{indelmode}.hairs',
-			pattern = datasets,
-			indelmode = indelmodes),
-
-		expand('hairs2/{pattern}.{mode}.{indelmode}.hairs',
-			pattern = datasets,
-			mode = modes,
-			indelmode = indelmodes),
-
-		expand('vcf/{data}.child.chr{chr}.phased.vcf',
-			data = data,
-			chr = chromosomes)
 
 #
 # run whatshap on a bam / vcf pair
