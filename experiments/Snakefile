@@ -529,27 +529,6 @@ rule increments :
    python {input.script} -r {input.log} >> {output} 2> {log} '''
 
 #
-# link to files from phasing comparison experiments directory
-#----------------------------------------------------------------------
-rule link_vcf :
-	input : data_dir + '/vcf/' + vcf_pattern + '.{phase,(phased|unphased)}.vcf'
-	output : 'vcf/' + vcf_pattern + '.{phase,(phased|unphased)}.vcf'
-	message : 'linking {input} to {output}'
-	shell : 'ln -fsrv {input} {output}'
-
-rule link_bam_bai :
-	input : data_dir + '/bam/' + dataset_pattern + '.{ext,(bam|bai)}'
-	output : 'bam/' + dataset_pattern + '.{ext,(bam|bai)}'
-	message : 'linking {input} to {output}'
-	shell : 'ln -fsrv {input} {output}'
-
-rule link_reference :
-	input : data_dir + '/reference/human_g1k_v37.fasta'
-	output : 'reference/human_g1k_v37.fasta'
-	message : 'linking {input} to {output}'
-	shell : 'ln -fsrv {input} {output}'
-
-#
 # obtain a wif file from a bam / vcf pair using whatshap
 #----------------------------------------------------------------------
 rule get_wif :
