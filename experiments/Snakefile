@@ -1,9 +1,9 @@
-#
-# for running all the different haplotyping softwares
-#----------------------------------------------------------------------
-#
-data_dir = '/data/phasing-comparison-experiments-hapcol'
-hap_dir = '/home/prj_rnabwt/haplotyping'
+'''
+
+   see README in the same directory as this Snakefile for instructions
+   on how to rerun this workflow
+
+'''
 
 # haplotyping softwares
 _corewh_ = 'programs/core_whatshap/build/dp'
