@@ -33,15 +33,16 @@ rule run_hapchat_realignment :
 
 rule download_reference :
 	input : datadir + '/MD5SUM'
+	output : datadir + '/genome.fasta.gz'
+	shell : '''
+   wget --quiet -O {output}.gz ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+        '''
+
+rule uncompress_reference :
+	input : datadir + '/genome.fasta.gz'
 	output : datadir + '/genome.fasta'
         log:  datadir + "/download.log"
 	shell : '''
-
-   wget --quiet -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
-   mv {output}.gz.incomplete {output}.gz
-   # gunzip fails with "decompression OK, trailing garbage ignored"
-   # because the file is razf-compressed (gzip-compatible, but with an
-   # index at end)
    pigz -d -k {output}.gz
         '''
 
