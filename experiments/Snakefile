@@ -140,21 +140,23 @@ def hairs(datasets_, modes_, indelmodes_) :
 #
 # master rule
 #----------------------------------------------------------------------
-
 rule master :
 	input :
+		# whatshap results
 		expand('output/whatshap/{pattern}.diff',
 			pattern = whatshap(
 					datasets(data, chromosomes),
 					['realigned'],
 					[15, 20, 25])),
 
+		# hapcol results
 		expand('output/hapcol/{pattern}.diff',
 			pattern = whatshap(
                                 	datasets(data, chromosomes),
                                       	['raw'],
 					[15, 20, 25, 30])),
 
+		# hapchat results
 		expand('output/hapchat/{pattern}.05_01.bN_0.{ext}',
 			pattern = postproc(
 					datasets(data, chromosomes),
@@ -162,18 +164,46 @@ rule master :
 					[15, 20, 25, 30, 35, 40]),
 			ext = ['diff', 'inc']),
 
+		# hapcut2 results
 		expand('output/hapcut2/{pattern}.diff',
 			pattern = hairs(
 					datasets(['sim'], chromosomes),
 					modes,
 					indelmodes)),
 
+		# refhap, fasthare and probhap results
 		expand('output/{method}/{pattern}.diff',
 			method = sih_methods + ['probhap'],
 			pattern = hairs(
 					datasets(data, chromosomes),
 					['raw'],
                         		indelmodes)),
+
+# check for the input needed for this workflow
+rule check_for_input :
+	output :
+		# vcf files
+		expand('data/vcf/{data}.{individual}.chr{chromosome}.{phase}.vcf',
+			data = data,
+			individual = individuals,
+			chromosome = chromosomes,
+			phase = ['unphased','phased']),
+
+		# bam files
+		expand('data/bam/{pattern}.bam',
+			pattern = datasets(data, [1,2]))
+
+	shell : '''
+
+   echo
+   echo "the input data needed to run this pipeline is missing.  Move into"
+   echo "the data/ directory, which is a child directory of the current"
+   echo "directory, and follow the instructions there"
+   echo
+   echo "once the workflow in the data/ directory is complete, come back"
+   echo "to this directory and launch the workflow here"
+   echo
+   exit 1 '''
 
 #
 # run whatshap on a bam / vcf pair
