@@ -20,7 +20,7 @@ timelimit = '24h' # 24 hour time limit
 sih_methods = ['refhap', 'fasthare']
 hairs_methods = ['hapcut2', 'probhap'] + sih_methods
 hap_methods = ['hapcol', 'hapchat']
-all_methods = ['whatshap'] + hapcut_methods + hap_methods
+all_methods = ['whatshap'] + hairs_methods + hap_methods
 
 # auxiliary programs
 time = '/usr/bin/time'
@@ -84,7 +84,7 @@ def list_regex(a) :
 	return '|'.join([x for x in a])
 
 sih_pattern = '{method,(' + list_regex(sih_methods) + ')}'
-hapcut_pattern = '{method,(' + list_regex(hapcut_methods) + ')}'
+hapcut_pattern = '{method,(' + list_regex(hairs_methods) + ')}'
 hap_pattern = '{method,(' + list_regex(hap_methods) + ')}'
 methods_pattern = '{method,(' + list_regex(all_methods) + ')}'
 output_pattern = methods_pattern + '/' + full_pattern
@@ -249,15 +249,6 @@ rule run_whatshap :
       whatshap phase -o {output} {params.realignment} -H {params.h} \
          {input.vcf} {input.bam} > {log.log} 2>&1 || true
    touch {output} '''
-
-
-
-
-
-
-
-
-
 
 #
 # run hapchat with increase-k and balancing on a wif file
