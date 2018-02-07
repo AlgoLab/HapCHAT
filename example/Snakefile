@@ -42,8 +42,8 @@ rule download_reference :
    # gunzip fails with "decompression OK, trailing garbage ignored"
    # because the file is razf-compressed (gzip-compatible, but with an
    # index at end)
-   gunzip -f -k {output}.gz
-#   md5sum -c {input}
+   pigz -d -k {output}.gz
+   md5sum -c {input}
         '''
 
 rule transfer_file :

@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y \
     cmake \
     g++ \
     git-core \
+    pigz \
     python3-biopython-sql \
     python3-dev \
     python3-networkx \
