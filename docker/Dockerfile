@@ -21,5 +21,5 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     ./setup.sh
 
 WORKDIR  "/HapCHAT/example"
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/usr/bin/snakemake"]
 #CMD [" -s example/Snakefile"]

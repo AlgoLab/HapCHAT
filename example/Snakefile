@@ -1,4 +1,4 @@
-datadir = '.' if 'datadir' not in config else config['datadir']
+datadir = '/data' if 'datadir' not in config else config['datadir']
 
 # master rule
 rule master :
