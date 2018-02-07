@@ -34,7 +34,7 @@ rule run_hapchat_realignment :
 rule download_reference :
 	input : datadir + '/MD5SUM'
 	output : datadir + '/genome.fasta'
-
+        log:  datadir + "/download.log"
 	shell : '''
 
    wget --quiet -O {output}.gz.incomplete ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
