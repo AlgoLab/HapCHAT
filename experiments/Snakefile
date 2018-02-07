@@ -143,17 +143,6 @@ def hairs(datasets_, modes_, indelmodes_) :
 		for mode_ in modes_
 		for indelmode_ in indelmodes_]
 
-# datasets both processed by whatshap and postprocessed to list of max cov.
-def sliceof(datasets_, modes_, thrs_, negthrs_, maxs_) :
-	return whatshap(datasets_, modes_, maxs_) + postproc(datasets_, modes_, thrs_, negthrs_, maxs_, True)
-
-# define a subset of the datasets in terms of chromosomes and coverages
-def datasubset(chr_covs_) :
-	return ['{}.pacbio.child.chr{}.cov{}'.format(data_, chromosome_, coverage_)
-		for data_ in data
-		for chromosome_ in chr_covs_
-		for coverage_ in chr_covs_[chromosome_]]
-
 #
 # master rule
 #----------------------------------------------------------------------
