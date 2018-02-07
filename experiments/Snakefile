@@ -214,9 +214,9 @@ rule setup :
 #----------------------------------------------------------------------
 rule run_whatshap :
 	input :
-		bam = 'bam/' + dataset_pattern + '.bam',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'reference/human_g1k_v37.fasta'
+		bam = 'data/bam/' + dataset_pattern + '.bam',
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
+		ref = 'data/reference/human_g1k_v37.fasta'
 
 	params :
 		realignment = lambda wildcards, input :
@@ -331,7 +331,7 @@ rule run_hapcol :
 rule run_hapcut2 :
 	input :
 		hairs = 'hairs2/' + hairs_pattern + '.hairs',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf'
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
 	output :
 		'output/hapcut2/' + full_pattern + '.out'
@@ -436,7 +436,7 @@ rule run_sih_method :
 #----------------------------------------------------------------------
 rule compare_vcfs :
 	input :
-		true = 'vcf/' + vcf_pattern + '.phased.vcf',
+		true = 'data/vcf/' + vcf_pattern + '.phased.vcf',
 		vcf = 'output/' + output_pattern + '.phased.vcf'
 
 	output :
@@ -466,7 +466,7 @@ rule phase_vcf :
 		script = scriptsdir + '/subvcf.py',
 		hap = 'output/' + hap_pattern + '/' + full_pattern + '.hap',
 		blocks = 'wif/' + post_pattern + '.wif.info_/block_sites_',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf'
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
 	output : 'output/' + hap_pattern + '/' + full_pattern + '.phased.vcf'
 
@@ -488,7 +488,7 @@ rule phase_vcf :
 rule hapcut_to_vcf :
 	input :
 		out = 'output/' + hapcut_pattern + '/' + full_pattern + '.out',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf'
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
 	output : 'output/' + hapcut_pattern + '/' + full_pattern + '.phased.vcf'
 
@@ -524,10 +524,10 @@ rule increments :
 #----------------------------------------------------------------------
 rule get_wif :
 	input :
-		bam = 'bam/' + dataset_pattern + '.bam',
-		bai = 'bam/' + dataset_pattern + '.bai',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'reference/human_g1k_v37.fasta'
+		bam = 'data/bam/' + dataset_pattern + '.bam',
+		bai = 'data/bam/' + dataset_pattern + '.bai',
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
+		ref = 'data/reference/human_g1k_v37.fasta'
 
 	params :
                 realignment = lambda wildcards, input :
@@ -562,10 +562,10 @@ rule get_wif :
 #----------------------------------------------------------------------
 rule get_hairs :
 	input :
-		bam = 'bam/' + dataset_pattern + '.bam',
-		bai = 'bam/' + dataset_pattern + '.bai',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'reference/human_g1k_v37.fasta'
+		bam = 'data/bam/' + dataset_pattern + '.bam',
+		bai = 'data/bam/' + dataset_pattern + '.bai',
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
+		ref = 'data/reference/human_g1k_v37.fasta'
 
 	params : lambda wildcards :
 		'--indels 1' if wildcards.indelmode == '.indels' else ''
@@ -592,10 +592,10 @@ rule get_hairs :
 # obtain hairs using hapcut2 extract hairs
 rule get_hairs2 :
 	input :
-		bam = 'bam/' + dataset_pattern + '.bam',
-		bai = 'bam/' + dataset_pattern + '.bai',
-		vcf = 'vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'reference/human_g1k_v37.fasta'
+		bam = 'data/bam/' + dataset_pattern + '.bam',
+		bai = 'data/bam/' + dataset_pattern + '.bai',
+		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
+		ref = 'data/reference/human_g1k_v37.fasta'
 
 	params :
 		realignment = lambda wildcards :
