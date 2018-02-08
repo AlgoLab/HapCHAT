@@ -613,7 +613,7 @@ rule hapcut_to_vcf :
 
 	shell : '''
 
-   {input.pgrm} hapcut2vcf {input.vcf} {input.out} > {output} 2> {log} '''
+   {input.prgm} hapcut2vcf {input.vcf} {input.out} > {output} 2> {log} '''
 
 #
 # get details on increasing k from a hapchat log file
