@@ -41,7 +41,6 @@ rule download_reference :
 rule uncompress_reference :
 	input : datadir + '/genome.fasta.gz'
 	output : datadir + '/genome.fasta'
-        log:  datadir + "/download.log"
 	shell : '''
    gunzip -k {output}.gz || /bin/true
         '''

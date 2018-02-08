@@ -23,4 +23,3 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
 
 WORKDIR  "/HapCHAT/example"
 ENTRYPOINT ["/usr/bin/snakemake"]
-#CMD [" -s example/Snakefile"]
