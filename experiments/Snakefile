@@ -6,7 +6,6 @@
 '''
 
 # haplotyping softwares
-_corewh_ = 'programs/core_whatshap/build/dp'
 _hapchat_ = 'programs/balancing-hapcol/build/hapcol'
 _hapcol_ = 'programs/HapCol/build/hapcol'
 _hapcut2_ = 'programs/HapCUT2/build/HAPCUT2'
