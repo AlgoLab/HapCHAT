@@ -10,6 +10,7 @@ _hapchat_ = 'programs/balancing-hapcol/build/hapcol'
 _hapcol_ = 'programs/HapCol/build/hapcol'
 _hapcut2_ = 'programs/HapCUT2/build/HAPCUT2'
 _probhap_ = 'programs/ProbHap/probhap.py'
+_sihmethod_ = 'programs/sih/SingleIndividualHaplotyper/SIH.jar'
 
 # limits on memory usage and runtime
 memlimit = 64 * 1024 * 1024 # 64GB limit (in KB)
@@ -401,11 +402,10 @@ rule run_probhap :
 #----------------------------------------------------------------------
 def sih_method(wildcards) :
 
-	sih = 'programs/refhap/SingleIndividualHaplotyper/SIH.jar'
 	main = 'mpg.molgen.sih.main.SIH'
 	opt = '-a FastHare' if wildcards.method == 'fasthare' else ''
 
-        return 'java -cp {} {} {}'.format(sih, main, opt)
+        return 'java -cp {} {} {}'.format(_sihmethod_, main, opt)
 
 rule run_sih_method :
 	input :
