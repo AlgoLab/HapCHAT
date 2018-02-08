@@ -1,0 +1,52 @@
+datadir = '/data' if 'datadir' not in config else config['datadir']
+
+# master rule
+rule master :
+	input :
+		datadir + '/out.phased.vcf',
+		datadir + '/out.realigned.phased.vcf'
+
+# auxiliary rules
+#----------------------------------------------------------------------
+
+rule run_hapchat :
+	input :
+		bam = datadir + '/file.bam',
+		vcf = datadir + '/file.vcf'
+
+	output : datadir + '/out.phased.vcf'
+
+	shell : '../HapCHAT.py {input.vcf} {input.bam} > {output}'
+
+rule run_hapchat_realignment :
+	input :
+		bam = datadir + '/file.bam',
+		vcf = datadir + '/file.vcf',
+		fasta = datadir + '/genome.fasta'
+
+	output : datadir + '/out.realigned.phased.vcf'
+
+	shell : '''
+
+   ../HapCHAT.py --reference {input.fasta} \
+      {input.vcf} {input.bam} > {output} '''
+
+rule download_reference :
+	input : datadir + '/MD5SUM'
+	output : datadir + '/genome.fasta.gz'
+	shell : '''
+   wget --quiet -O {output} ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37.fasta.gz
+        '''
+
+rule uncompress_reference :
+	input : datadir + '/genome.fasta.gz'
+	output : datadir + '/genome.fasta'
+        log:  datadir + "/download.log"
+	shell : '''
+   gunzip -k {output}.gz || /bin/true
+        '''
+
+rule transfer_file :
+	input : '{file}'
+	output : datadir + '/{file}'
+	shell : 'cp {input} {output}'
