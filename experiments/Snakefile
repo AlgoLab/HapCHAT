@@ -205,6 +205,65 @@ rule check_input :
    exit 1 '''
 
 #
+# install the various haplotyping softwares
+#----------------------------------------------------------------------
+
+# hapcol
+rule install_hapcol :
+	output : _hapcol_
+	message : 'installing hapcol ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf HapCol
+   git clone https://github.com/AlgoLab/HapCol.git
+   cd HapCol
+   mkdir -p build
+   cd build
+   cmake ../src
+   make '''
+
+# hapcut2
+rule install_hapcut2 :
+	output : _hapcut2_
+	message : 'installing hapcut2 ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf HapCUT2
+   git clone https://github.com/vibansal/HapCUT2.git
+   cd HapCUT2
+   make '''
+
+# probhap
+rule install_probhap :
+	output : _probhap_
+	message : 'installing probhap ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf ProbHap
+   git clone https://github.com/kuleshov/ProbHap.git '''
+
+# sih method
+rule install_sih_method :
+	output : _sihmethod_
+	message : 'installing sih method ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   mkdir -p sih
+   cd sih
+   wget -O sih.tar.gz http://www.molgen.mpg.de/~genetic-variation/SIH/algorithms/SingleIndividualHaplotyper_1.0.0.tar.gz
+   tar -zxvf sih.tar.gz
+   cd SingleIndividualHaplotyper
+   make all '''
+
+#
 # run whatshap on a bam / vcf pair
 #----------------------------------------------------------------------
 rule run_whatshap :
