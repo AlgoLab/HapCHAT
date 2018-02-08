@@ -225,7 +225,7 @@ rule install_hapcol :
 
 # hapcut2
 rule install_hapcut2 :
-	output : _hapcut2_, extract_hairs2
+	output : _hapcut2_, _extracthairs2_
 	message : 'installing hapcut2 (and its extractHAIRS procedure ...'
 	shell : '''
 
@@ -361,7 +361,9 @@ def hapchat_params(wildcards) :
 		 'balance_ratio' : '0.' + r }
 
 rule run_hapchat :
-	input : 'wif/' + post_pattern + '.wif'
+	input :
+		prgm = _hapchatcore_,
+		wif = 'wif/' + post_pattern + '.wif'
 
 	params :
 		epsilon = lambda wildcards : hapchat_params(wildcards)['epsilon'],
@@ -373,14 +375,13 @@ rule run_hapchat :
 		hap = 'output/hapchat/' + full_pattern + '.hap',
 		log = 'output/hapchat/' + full_pattern + '.log',
 
-	log :
-		time = 'output/hapchat/' + full_pattern + '.time'
+	log : time = 'output/hapchat/' + full_pattern + '.time'
 
 	message : '''
 
    running hapchat on :
 
-   {input}
+   {input.wif}
 
    with memory limit: {memlimit}K
 
@@ -390,7 +391,7 @@ rule run_hapchat :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      {_hapchat_} -i {input} -o {output.hap} -A \
+      {input.prgm} -i {input.wif} -o {output.hap} -A \
          -e {params.epsilon} -a {params.alpha} \
          -b {params.balance_cov} -r {params.balance_ratio} \
             > {output.log} 2>&1 || true
@@ -402,6 +403,7 @@ rule run_hapchat :
 rule run_hapcol :
 	input :
 		script = 'scripts/run.hapcol.bash',
+		prgm = _hapcol_,
 		wif = 'wif/' + post_pattern + '.wif'
 
 	output : 'output/hapcol/' + post_pattern + '.hap'
@@ -424,7 +426,7 @@ rule run_hapcol :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      bash {input.script} {_hapcol_} {input.wif} {output} \
+      bash {input.script} {input.prgm} {input.wif} {output} \
          > {log.log} 2>&1 || true
    touch {output} '''
 
@@ -433,11 +435,11 @@ rule run_hapcol :
 #----------------------------------------------------------------------
 rule run_hapcut2 :
 	input :
+		prgm = _hapcut2_,
 		hairs = 'hairs2/' + hairs_pattern + '.hairs',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
-	output :
-		'output/hapcut2/' + full_pattern + '.out'
+	output : 'output/hapcut2/' + full_pattern + '.out'
 
 	log :
 		log = 'output/hapcut2/' + full_pattern + '.log',
@@ -455,7 +457,7 @@ rule run_hapcut2 :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      {_hapcut2_} --fragments {input.hairs} --VCF {input.vcf} \
+      {input.prgm} --fragments {input.hairs} --VCF {input.vcf} \
          --output {output} > {log.log} 2>&1 || true
    touch {output} '''
 
@@ -464,10 +466,10 @@ rule run_hapcut2 :
 #----------------------------------------------------------------------
 rule run_probhap :
 	input :
-		'hairs/' + hairs_pattern + '.hairs'
+		prgm = _probhap_,
+		hairs = 'hairs/' + hairs_pattern + '.hairs'
 
-	output :
-		'output/probhap/' + full_pattern + '.out'
+	output : 'output/probhap/' + full_pattern + '.out'
 
 	log :
 		reads = 'output/probhap/' + full_pattern + '.reads',
@@ -477,7 +479,7 @@ rule run_probhap :
 
 	message : '''
 
-   running probhap on hairs file: {input}
+   running probhap on hairs file: {input.hairs}
 
    with memory limit: {memlimit}K
 
@@ -487,8 +489,8 @@ rule run_probhap :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      python2 {_probhap_} \
-         --reads {input} \
+      python2 {input.prgm} \
+         --reads {input.hairs} \
          --parsed-reads {log.reads} \
          --phase {output} \
          --assignments {log.assignments} > {log.log} 2>&1 || true
@@ -497,22 +499,21 @@ rule run_probhap :
 #
 # run a SIH method (refhap, fasthare, ..)
 #----------------------------------------------------------------------
-def sih_method(wildcards) :
+def sih_method(wildcards, input) :
 
 	main = 'mpg.molgen.sih.main.SIH'
 	opt = '-a FastHare' if wildcards.method == 'fasthare' else ''
 
-        return 'java -cp {} {} {}'.format(_sihmethod_, main, opt)
+        return 'java -cp {} {} {}'.format(input.prgm, main, opt)
 
 rule run_sih_method :
 	input :
-		'hairs/' + hairs_pattern + '.hairs',
+                prgm = _sihmethod_,
+		hairs = 'hairs/' + hairs_pattern + '.hairs',
 
-	params :
-		method = sih_method
+	params : method = sih_method
 
-	output :
-		'output/' + sih_pattern + '/' + full_pattern + '.out'
+	output : 'output/' + sih_pattern + '/' + full_pattern + '.out'
 
 	log :
 		log = 'output/{method}/' + full_pattern + '.log',
@@ -520,7 +521,7 @@ rule run_sih_method :
 
 	message : '''
 
-   running {wildcards.method} on hairs file: {input}
+   running {wildcards.method} on hairs file: {input.hairs}
 
    with memory limit: {memlimit}K
 
@@ -530,7 +531,7 @@ rule run_sih_method :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      {params.method} {input} {output} > {log.log} 2>&1 || true
+      {params.method} {input.hairs} {output} > {log.log} 2>&1 || true
    touch {output} '''
 
 #
@@ -538,6 +539,7 @@ rule run_sih_method :
 #----------------------------------------------------------------------
 rule compare_vcfs :
 	input :
+		prgm = _whhapchat_,
 		true = 'data/vcf/' + vcf_pattern + '.phased.vcf',
 		vcf = 'output/' + output_pattern + '.phased.vcf'
 
@@ -557,7 +559,7 @@ rule compare_vcfs :
 
 	shell : '''
 
-   {compare} --switch-error-bed {output.bed} \
+   {input.prgm} compare --switch-error-bed {output.bed} \
       {input.true} {input.vcf} \
          > {output.diff} 2> {log} || true
    touch {output} '''
@@ -589,6 +591,7 @@ rule phase_vcf :
 # convert hapcut (or hapcut-like) output format to (phased) vcf
 rule hapcut_to_vcf :
 	input :
+		prgm = _whhcv_,
 		out = 'output/' + hapcut_pattern + '/' + full_pattern + '.out',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
@@ -596,11 +599,11 @@ rule hapcut_to_vcf :
 
 	log : 'output/' + hapcut_pattern + '/' + full_pattern + '.phased.vcf.log'
 
-	message : 'converting hapcut {input} to {output}'
+	message : 'converting hapcut {input.vcf} {input.out} to {output}'
 
 	shell : '''
 
-   {hapcut2vcf} {input.vcf} {input.out} > {output} 2> {log} '''
+   {input.pgrm} hapcut2vcf {input.vcf} {input.out} > {output} 2> {log} '''
 
 #
 # get details on increasing k from a hapchat log file
@@ -626,6 +629,7 @@ rule increments :
 #----------------------------------------------------------------------
 rule get_wif :
 	input :
+		prgm = _whhapchat_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
@@ -654,7 +658,7 @@ rule get_wif :
 	shell : '''
 
    {time} -v -o {log.time} \
-      {phase} -o /dev/null {params.realignment} \
+      {input.prgm} phase -o /dev/null {params.realignment} \
          --output-wif {output} -H {params.h} \
          {input.vcf} {input.bam} > {log.transcript} 2> {log.log} '''
 
@@ -663,6 +667,7 @@ rule get_wif :
 #----------------------------------------------------------------------
 rule get_hairs :
 	input :
+		prgm = _extracthairs_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
@@ -685,13 +690,14 @@ rule get_hairs :
 	shell : '''
 
    {time} -v -o {log.time} \
-      {extract_hairs} --ref {input.ref} {params} \
+      {input.prgm} --ref {input.ref} {params} \
          --VCF {input.vcf} --bam {input.bam} \
             > {output} 2> {log.log} '''
 
 # obtain hairs using hapcut2 extract hairs
 rule get_hairs2 :
 	input :
+		prgm = _extracthairs2_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
@@ -717,7 +723,7 @@ rule get_hairs2 :
 	shell : '''
 
    {time} -v -o {log.time} \
-      {extract_hairs2} --ref {input.ref} {params} \
+      {input.prgm} --ref {input.ref} {params} \
          --VCF {input.vcf} --bam {input.bam} --out {output} \
             > {log.log} 2>&1 '''
 
