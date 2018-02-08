@@ -464,10 +464,20 @@ rule run_hapcut2 :
 #
 # run probhap on a hairs file
 #----------------------------------------------------------------------
+rule add_npos :
+	input : 'hairs/' + hairs_pattern + '.hairs'
+	output : 'hairs/' + hairs_pattern + '.hairs.wnpos'
+	message : 'prepend to {input} number of clouds / positions for probhap'
+	shell : '''
+
+   awk '{{ count += 1; npos += length($NF) }} \
+        END {{ printf "%d %d\n", count + 1, npos }}' {input} | \
+   cat - {input} > {output} '''
+
 rule run_probhap :
 	input :
 		prgm = _probhap_,
-		hairs = 'hairs/' + hairs_pattern + '.hairs'
+		hairs = 'hairs/' + hairs_pattern + '.hairs.wnpos'
 
 	output : 'output/probhap/' + full_pattern + '.out'
 
