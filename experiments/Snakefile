@@ -25,11 +25,10 @@ all_methods = ['whatshap'] + hairs_methods + hap_methods
 # auxiliary programs
 time = '/usr/bin/time'
 timeout = '/usr/bin/timeout'
-phase = 'programs/whatshap/venv/bin/whatshap phase'
-compare = 'programs/whatshap/venv/bin/whatshap compare'
-hapcut2vcf = 'programs/conversion/whatshap/venv/bin/whatshap hapcut2vcf'
-extract_hairs = 'programs/hapcut/extractHAIRS'
-extract_hairs2 = 'programs/HapCUT2/build/extractHAIRS'
+_whhapchat_ = '../software/whatshap/venv/bin/whatshap'
+_whhcv_ = 'programs/whatshap/venv/bin/whatshap'
+_extracthairs_ = 'programs/hapcut/extractHAIRS'
+_extracthairs2_ = 'programs/HapCUT2/build/extractHAIRS'
 scriptsdir = '../scripts'
 
 # datasets
@@ -226,8 +225,8 @@ rule install_hapcol :
 
 # hapcut2
 rule install_hapcut2 :
-	output : _hapcut2_
-	message : 'installing hapcut2 ...'
+	output : _hapcut2_, extract_hairs2
+	message : 'installing hapcut2 (and its extractHAIRS procedure ...'
 	shell : '''
 
    mkdir -p programs
@@ -262,6 +261,38 @@ rule install_sih_method :
    tar -zxvf sih.tar.gz
    cd SingleIndividualHaplotyper
    make all '''
+
+#
+# install the auxiliary programs
+#----------------------------------------------------------------------
+
+# hapcut (for its extractHAIRS procedure)
+rule install_hapcut :
+	output : _extracthairs_
+	message : 'installing hapcut for its extractHAIRS procedure ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf hapcut
+   git clone https://github.com/vibansal/hapcut.git
+   cd hapcut
+   make '''
+
+# whatshap (the branch for converting probhap/sih to vcf)
+rule install_whatshap :
+	output : _whhcv_
+	message : 'installing branch of whatshap for enhanced hapcut2vcf features ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf whatshap
+   git clone --branch extend_hapcut2vcf https://bitbucket.org/whatshap/whatshap.git
+   cd whatshap
+   virtualenv -p python3 venv
+   venv/bin/pip3 install Cython nose tox
+   venv/bin/pip3 install -e . '''
 
 #
 # run whatshap on a bam / vcf pair
