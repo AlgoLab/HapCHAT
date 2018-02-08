@@ -6,7 +6,7 @@
 '''
 
 # haplotyping softwares
-_hapchat_ = 'programs/balancing-hapcol/build/hapcol'
+_hapchatcore_ = '../software/hapchat/hapchat_core'
 _hapcol_ = 'programs/HapCol/build/hapcol'
 _hapcut2_ = 'programs/HapCUT2/build/HAPCUT2'
 _probhap_ = 'programs/ProbHap/probhap.py'
@@ -261,6 +261,14 @@ rule install_sih_method :
    tar -zxvf sih.tar.gz
    cd SingleIndividualHaplotyper
    make all '''
+
+# hapchat (just to ensure that the user has installed hapchat)
+rule install_hapchat :
+	output : _whhapchat_, _hapchatcore_
+	shell : '''
+
+   cd ..
+   bash setup.sh '''
 
 #
 # install the auxiliary programs
