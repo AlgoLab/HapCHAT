@@ -5,7 +5,7 @@
 base="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )"
 
 whatshap=$base/software/whatshap/venv/bin/whatshap
-hapchat=$base/software/hapchat/hapchat
+hapchat=$base/software/hapchat/hapchat_core
 
 # WhatsHap
 #----------------------------------------------------------------------
@@ -41,7 +41,7 @@ echo "setup of WhatsHap is complete."
 
 # HapCHAT
 #----------------------------------------------------------------------
-echo "setting up HapCHAT .."
+echo "setting up the HapCHAT core phasing algorithm .."
 
 # add a build directory and build the source
 function build_hapchat {
@@ -61,7 +61,7 @@ else
     build_hapchat
 fi
 
-echo "setup of HapCHAT is complete."
+echo "setup of HapCHAT core phasing algorithm is complete."
 
 # finish
 #----------------------------------------------------------------------

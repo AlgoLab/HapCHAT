@@ -13,7 +13,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -march=native")
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -march=native")
 
 
-add_executable (hapchat
+add_executable (hapchat_core
   entry.h
   entry.cpp
   new_columnreader.h
@@ -28,11 +28,11 @@ add_executable (hapchat
   basic_types.h
   basic_types.cpp
   log.h
-  HapCHAT.cpp
+  hapchat_core.cpp
 )
 
 
-install(TARGETS hapchat RUNTIME DESTINATION bin)
+install(TARGETS hapchat_core RUNTIME DESTINATION bin)
 
 
 
@@ -78,9 +78,9 @@ if(ENABLE_DISPLAY_REVISION)
         ${CMAKE_CURRENT_BINARY_DIR}/revision.h
     )
   add_dependencies(revision revision_dummy)
-  add_dependencies(hapchat revision)
+  add_dependencies(hapchat_core revision)
   set_source_files_properties(
-    HapCHAT.cpp
+    hapchat_core.cpp
     PROPERTIES
     COMPILE_DEFINITIONS "LOAD_REVISION"
     )

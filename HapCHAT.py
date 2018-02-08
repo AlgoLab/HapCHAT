@@ -20,7 +20,7 @@ dir = os.path.dirname(os.path.realpath(__file__))
 scr_dir = '{}/scripts'.format(dir)
 
 whatshap = '{}/software/whatshap/venv/bin/whatshap'.format(dir)
-hapchat = '{}/software/hapchat/hapchat'.format(dir)
+hapchatcore = '{}/software/hapchat/hapchat_core'.format(dir)
 
 #
 # functions
@@ -146,24 +146,24 @@ def downsample(wif, seed, maxcov) :
     return downs
 
 
-# run hapchat
-def run_hapchat(wif) :
+# run hapchat core phasing algorithm
+def run_hapchatcore(wif) :
 
-    # run hapchat with default parameters
+    # run hapchat core phasing algorithm with default parameters
     hap = '{}.hap'.format(wif)
     log = '{}.log'.format(hap)
     subprocess.run('''
 
   {} -i {} -o {} -A -e 0.05 -a 0.1 -b 1000 -r 0
 
-    '''.format(hapchat, wif, hap).split(),
+    '''.format(hapchatcore, wif, hap).split(),
                    stdout = open(log,'w'),
                    stderr = subprocess.STDOUT)
 
     # return resulting haplotypes
     return hap
 
-# convert hapchat output to phased vcf
+# convert hapchat phasing output to phased vcf
 def phase_vcf(hap, wif, vcf) :
 
     # obtain blocks of the instance
@@ -190,9 +190,9 @@ def phase_vcf(hap, wif, vcf) :
 #----------------------------------------------------------------------
 def main(argv = sys.argv[1:]) :
 
-    # assert the existence of whatshap and hapchat
+    # assert the existence of whatshap and hapchat core phasing algorithm
     assert os.path.exists(whatshap), 'WhatsHap not found, please run setup.sh'
-    assert os.path.exists(hapchat), 'HapCHAT not found, please run setup.sh'
+    assert os.path.exists(hapchatcore), 'HapCHAT core phasing algorithm not found, please run setup.sh'
 
     # parse arguments
     parser = argparse.ArgumentParser(prog = description.split()[0].rstrip(':'),
@@ -212,8 +212,8 @@ def main(argv = sys.argv[1:]) :
     # random downsampling
     downs_wif = downsample(merged_wif, args.seed, args.max_coverage) 
 
-    # run hapchat
-    hap = run_hapchat(downs_wif)
+    # run hapchat core phasing algorithm
+    hap = run_hapchatcore(downs_wif)
 
     # obtain phased vcf
     phased_vcf = phase_vcf(hap, wif, args.vcf)
