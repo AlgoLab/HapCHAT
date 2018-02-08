@@ -180,18 +180,17 @@ rule master :
                         		indelmodes)),
 
 # check for the input needed for this workflow
-rule check_for_input :
+rule check_input :
 	output :
 		# vcf files
-		expand('data/vcf/{data}.{individual}.chr{chromosome}.{phase}.vcf',
+		expand('data/vcf/{data}.child.chr{chromosome}.{phase}.vcf',
 			data = data,
-			individual = individuals,
 			chromosome = chromosomes,
-			phase = ['unphased','phased']),
+			phase = ['unphased', 'phased']),
 
 		# bam files
 		expand('data/bam/{pattern}.bam',
-			pattern = datasets(data, [1,2]))
+			pattern = datasets(data, chromosomes))
 
 	shell : '''
 
