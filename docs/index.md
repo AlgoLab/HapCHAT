@@ -15,7 +15,7 @@ efficiently leveraging high coverage in long reads_.  bioRxiv 170225.
 
 DOI: [10.1101/170225](https://doi.org/10.1101/170225)
 
-To replicate the paper: TODO
+To replicate the paper, go [here](https://github.com/AlgoLab/HapCHAT/tree/master/experiments)
 
 ## Quick Install
 
