@@ -19,9 +19,25 @@ To replicate the paper: TODO
 
 ## Quick Install
 
-use docker
+If you have docker installed, to install and run HapCHAT you only have to run `docker run
+-v DATADIR:/data algolab/hapchat` where `DATADIR` is a directory with the input data files
+`genome.fasta`, `file.bam`, `file.vcf`. If `DATADIR` is empty, then HapCHAT is run on the
+example files in the `example` directory (the example `genome.fasta` is too large, so it is
+downloaded if necessary).
 
-## <a name="install"></a> Manual install
+### Input and output files
+
+*  `genome.fasta`
+
+*  `file.bam`: it is the input file containing all aligned reads in BAM format
+
+*  `file.vcf`
+
+*  `out.realigned.phased.vcf`
+
+*  `out.phased.vcf`
+
+### <a name="install"></a> Installation for Experts
 
 HapCHAT has been developed and tested on Ubuntu Linux, but should work
 any system which has python(3), C++(>=11), as well other utilities
@@ -41,5 +57,8 @@ _Note:_ that `setup.sh` simply checks out a HapCHAT-specific git
 branch of WhatsHap, installs it in a virtual environment, and then
 builds with cmake the C++ code located in `src/`.  While this should
 work automagically for most *nix-based systems with bash, solutions
-could be found for other systems by slightly modifying `setup.sh`
+could be found for other systems by slightly modifying `setup.sh`.
+
+The main advantage of the expert installation is that you can adapt the `Snakefile` in the
+`example` directory to run on your files, using custom filenames and directory tree.
 

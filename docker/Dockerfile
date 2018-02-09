@@ -18,7 +18,6 @@ VOLUME ["/data"]
 
 RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     cd HapCHAT && \
-    git checkout docker && \
     ./setup.sh
 
 WORKDIR  "/HapCHAT/example"
