@@ -16,4 +16,4 @@ DOI: [10.1101/170225](https://doi.org/10.1101/170225)
 
 ## Website
 
-Instructions on how to install and use HapCHAT are on the website [https://hapchat.algolab.eu](https://hapchat.algolab.eu)
+Instructions on how to install and use HapCHAT are on the website [http://hapchat.algolab.eu](http://hapchat.algolab.eu)
