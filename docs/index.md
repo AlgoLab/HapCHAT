@@ -19,9 +19,12 @@ To replicate the paper: TODO
 
 ## Quick Install
 
-use docker
+If you have docker installed, to install and run HapCHAT you only have to run `docker run
+-v DATADIR:/data algolab/hapchat` where `DATADIR` is a directory with the input data files
+`genome.fasta`, `file.bam`, `file.vcf`. If `DATADIR` is empty, then HapCHAT is run on the
+example files in the `example` directory.
 
-## <a name="install"></a> Manual install
+### <a name="install"></a> Installation for Experts
 
 HapCHAT has been developed and tested on Ubuntu Linux, but should work
 any system which has python(3), C++(>=11), as well other utilities
@@ -41,5 +44,5 @@ _Note:_ that `setup.sh` simply checks out a HapCHAT-specific git
 branch of WhatsHap, installs it in a virtual environment, and then
 builds with cmake the C++ code located in `src/`.  While this should
 work automagically for most *nix-based systems with bash, solutions
-could be found for other systems by slightly modifying `setup.sh`
+could be found for other systems by slightly modifying `setup.sh`use docker
 
