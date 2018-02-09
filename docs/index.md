@@ -22,7 +22,8 @@ To replicate the paper: TODO
 If you have docker installed, to install and run HapCHAT you only have to run `docker run
 -v DATADIR:/data algolab/hapchat` where `DATADIR` is a directory with the input data files
 `genome.fasta`, `file.bam`, `file.vcf`. If `DATADIR` is empty, then HapCHAT is run on the
-example files in the `example` directory.
+example files in the `example` directory (the example `genome.fasta` is too large, so it is
+downloaded if necessary).
 
 ### Input and output files
 
