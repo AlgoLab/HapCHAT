@@ -1,12 +1,18 @@
 # The data for the experiments #
 
-This directory contains a workflow, described as a "Snakefile", which
-needs to be run with [snakemake](http://snakemake.bitbucket.org).
-This workflow downloads/generates the real and simulated data -- in
-the form of BAM and VCF files -- that is the input data for these
-experments (described in the parent directory).  Since this workflow
-takes a long time, and these BAM and VCF files can be useful for
-further studies, we provide this as a standalone workflow.
+This directory contains the instructions for downloading/generating
+the input data for the experiments described in our study: "HapCHAT:
+Adaptive haplotype assembly for efficiently leveraging high coverage
+in long reads", for which a preprint is available at
+[https://doi.org/10.1101/170225](https://doi.org/10.1101/170225).
+
+The workflow is described as a "Snakefile", which needs to be run with
+[snakemake](http://snakemake.bitbucket.org).  This workflow
+downloads/generates the real and simulated data -- in the form of BAM
+and VCF files -- that is the input data for these experments
+(described in the parent directory).  Since this workflow takes a long
+time, and these VCF and BAM files can be useful for further studies,
+we provide this as a standalone workflow.
 
 ## Overview
 
@@ -62,29 +68,30 @@ using different versions of the tools.
 
 ## Install all other dependencies
 
-1. Install necessary system packages. We assume you use Debian or
-   Ubuntu. If you do not have root access on your system, you can try
+1. Install necessary system packages.  We assume you use Debian or
+   Ubuntu.  If you do not have root access on your system, you can try
    to ignore this step.  These packages are typically already
    installed.
 
         sudo apt-get install bzip2 wget unzip build-essential zlib1g-dev ncurses-dev pigz
 
-2. Install Miniconda. Most of the remaining dependencies are available
-   as packages in the [bioconda](http://bioconda.github.io/) Conda
-   channel, for which we need conda.
+2. Install Miniconda.  Most of the remaining dependencies are
+   available as packages in the [bioconda](http://bioconda.github.io/)
+   Conda channel, for which we need conda.
 
         wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
         bash Miniconda3-latest-Linux-x86_64.sh
 
-    Then follow the instructions on screen. After conda is installed, add the
-    required channels to the configuration.
+    Then follow the instructions on screen. After conda is installed,
+    add the required channels to the configuration.
 
         conda config --add channels bioconda --add channels r --add channels conda-forge
 
 3. Install all dependencies available as Conda packages.
 
-        conda install -y python=3.5.2 snakemake=3.7.1 samtools=1.2 picard=1.126 \
-            bedtools=2.23.0 vcftools=0.1.14 bwa=0.7.12 pbsim=1.0.3 whatshap=0.13
+        conda install -y python pysam snakemake \
+            samtools=1.2 picard=1.126 bedtools=2.23.0 vcftools=0.1.14 \
+            bwa=0.7.12 pbsim=1.0.3 whatshap=0.13
 
 ## Run the workflow
 

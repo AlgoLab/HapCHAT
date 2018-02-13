@@ -1,7 +1,13 @@
 # Replicating the experiments #
 
-This directory contains a workflow, described as a "Snakefile", which
-needs to be run with [snakemake](http://snakemake.bitbucket.org).
+This directory contains the instructions for reproducing the
+experiments described in our study: "HapCHAT: Adaptive haplotype
+assembly for efficiently leveraging high coverage in long reads", for
+which a preprint is available at
+[https://doi.org/10.1101/170225](https://doi.org/10.1101/170225).
+
+The workflow is described as a "Snakefile", which needs to be run with
+[snakemake](http://snakemake.bitbucket.org).
 
 ## Overview
 
@@ -10,32 +16,40 @@ README file is located.  In principle, you only need to run
 `snakemake` here and then the rest is done automatically, but all
 dependencies need to be installed first.  Further things to know:
 
-* About 150 GB of hard disk space is needed (better 200GB to be on the
-  safe side)
+* Approximately 150 GB of hard disk space is needed (better 200 GB to
+  be on the safe side).
 
 * No data is included in this repository since all required files will
-  be generated (which take up said 150GB)
+  be generated (which take up said 150 GB).
 
 * 8 cores should work, but more is better. Presumably 8 GB RAM works,
   but more is better.  We tested on a 32-core machine with 256 GB RAM.
 
-## Generaing the input data
+## Obtaining/generaing the input data
 
-One must first go to the child directory `/data` of this current
-directory and follow instructions there for generating the input BAM
-and VCF for this workflow
+More precisely, this workflow replicates what is described in the
+subsection "Expermental setup" of the above "HapCHAT" study.  The
+data, described in the subsection "Data description", which is used by
+the former, must be generated first.
+
+In order to do this, go to the child directory `/data` of this current
+directory and follow instructions there for generating the input VCF
+and BAM files required byr this workflow.
 
 ## Installing dependencies
 
-Install necessary system packages that the different phasing softwares
-depend on. We assume you use Debian or Ubuntu. If you do not have root
+Install the necessary system packages that the different phasing
+softwares of this workflow depend on.  Some of these dependencies have
+already been installed as a prerequisite to runng the workflow for
+obtaining/generating the input data -- so we assume that this workflow
+has finished successfully.
+
+We also assume you use Debian or Ubuntu.  If you do not have root
 access on your system, you can try to ignore this step.  These
 packages are typically already installed.
 
-    snakemake (conda install -c bioconda snakemake)
-    pysam (conda install -c bioconda pysam)
-    virtualenv (conda install virtualenv)
-    javac (sudo apt install default-jdk)
+    sudo apt-get install default-jdk
+    conda install -y virtualenv networkx
 
 ## Run the workflow
 
