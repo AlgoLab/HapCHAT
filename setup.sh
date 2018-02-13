@@ -55,7 +55,7 @@ function build_hapchatcore {
     make -j 8
 }
 
-if [ -e $hapchat ] ; then
+if [ -e $hapchatcore ] ; then
     echo "The HapCHAT core phasing executable already exists"
 else
     build_hapchatcore
