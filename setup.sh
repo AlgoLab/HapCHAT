@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-# setup and configure WhatsHap and HapCHAT
+# setup and configure WhatsHap and the HapCHAT core phasing algorithm
 #
 base="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd )"
 
 whatshap=$base/software/whatshap/venv/bin/whatshap
-hapchat=$base/software/hapchat/hapchat_core
+hapchatcore=$base/software/hapchat/hapchat_core
 
 # WhatsHap
 #----------------------------------------------------------------------
@@ -31,7 +31,7 @@ function venv_whatshap {
 }
 
 if [ -e $whatshap ] ; then
-    echo "WhatsHap excecutable already exists"
+    echo "WhatsHap executable already exists"
 else
     clone_whatshap
     venv_whatshap
@@ -39,12 +39,12 @@ fi
 
 echo "setup of WhatsHap is complete."
 
-# HapCHAT
+# The HapCHAT core phasing algorithm
 #----------------------------------------------------------------------
 echo "setting up the HapCHAT core phasing algorithm .."
 
 # add a build directory and build the source
-function build_hapchat {
+function build_hapchatcore {
     cd $base
     echo "building source with cmake/make .."
     mkdir -p software
@@ -56,12 +56,12 @@ function build_hapchat {
 }
 
 if [ -e $hapchat ] ; then
-    echo "HapCHAT executable already exists"
+    echo "The HapCHAT core phasing executable already exists"
 else
-    build_hapchat
+    build_hapchatcore
 fi
 
-echo "setup of HapCHAT core phasing algorithm is complete."
+echo "setup of the HapCHAT core phasing algorithm is complete."
 
 # finish
 #----------------------------------------------------------------------
@@ -73,7 +73,7 @@ echo "WhatsHap can now be executed as:"
 echo
 echo "   $whatshap"
 echo
-echo "HapCHAT can now be executed as:"
+echo "The HapCHAT core phasing algorithm can now be executed as:"
 echo
-echo "   $hapchat"
+echo "   $hapchatcore"
 echo
