@@ -189,7 +189,10 @@ rule check_input :
 
 		# bam files
 		expand('data/bam/{pattern}.bam',
-			pattern = datasets(data, chromosomes))
+			pattern = datasets(data, chromosomes)),
+
+		# reference genome
+		'data/reference/human_g1k_v37.fasta'
 
 	shell : '''
 
