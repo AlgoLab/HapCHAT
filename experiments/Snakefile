@@ -474,7 +474,7 @@ rule add_npos :
 	shell : '''
 
    awk '{{ count += 1; npos += length($NF) }} \
-        END {{ printf "%d %d\n", count + 1, npos }}' {input} | \
+        END {{ printf "%d %d\\n", count + 1, npos }}' {input} | \
    cat - {input} > {output} '''
 
 rule run_probhap :
