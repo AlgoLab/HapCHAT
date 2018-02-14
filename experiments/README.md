@@ -51,6 +51,12 @@ packages are typically already installed.
     sudo apt-get install default-jdk
     conda install -y virtualenv networkx
 
+Python 2, and the weave module (supported by python<=2.6) are needed
+to run ProbHap.
+
+    sudo apt-get install python python-pip
+    sudo pip install weave
+
 ## Run the workflow
 
 Start the workflow with
