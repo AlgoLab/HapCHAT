@@ -190,7 +190,7 @@ int main(int argc, char** argv)
   INFO("Balancing? " << (options.balancing?"True":"False"));
   INFO("Balancing activates after coverage: " << options.balance_cov);
   INFO("Balance ratio: " << options.balance_ratio);
-
+  INFO("PROVA");
   if (!options.options_initialized) {
     FATAL("Arguments not correctly initialized! Exiting..");
     exit(EXIT_FAILURE);
