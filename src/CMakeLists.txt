@@ -29,6 +29,15 @@ add_executable (hapchat_core
   basic_types.cpp
   log.h
   hapchat_core.cpp
+  HapCHATcore.cpp
+  read.h 
+  read.cpp
+  readset.h
+  readset.cpp
+  indexset.h
+  indexset.cpp
+  columniterator.h
+  columniterator.cpp
 )
 
 
