@@ -41,6 +41,7 @@
 #include "balanced_combinations.h"
 #include "new_columnreader.h"
 #include "blockreader.h"
+#include "HapCHATcore.cpp"
 
 #ifdef LOAD_REVISION
 #include "revision.h"
@@ -195,7 +196,9 @@ int main(int argc, char** argv)
     FATAL("Arguments not correctly initialized! Exiting..");
     exit(EXIT_FAILURE);
   }
-
+  //try section
+  HapCHATcore h=HapCHATcore();
+  Column column=h.getColumn();
   //Initializing the starting parameters: no competitive section
 
   //Pre-compute binomial values
