@@ -66,6 +66,7 @@ const ReadSet prova(){
 //the line commented is where i got the error
 Column getColumn(){
 unique_ptr<vector<const Entry *> > next_input_column;
+if(iterator.has_next()) { cout << "has next" << endl; } // sanity check
 //next_input_column = iterator.get_next();
 
 Column column;
