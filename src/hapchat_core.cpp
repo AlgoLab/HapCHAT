@@ -107,14 +107,14 @@ void write_haplotypes(const vector<vector<char> > &haplotype_blocks1, const vect
 void dp(const constants_t &constants, const options_t &options, ColumnReader1 &column_reader,
         vector<bool> &haplotype1, vector<bool> &haplotype2, Counter &step_global, Cost &OPT_global,
         Counter &MAX_COV_global, Counter &MAX_L_global, Counter &MAX_K_global,
-        Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK);
+        Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK,HapCHATcore hap);
 
 
 void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
                         Counter &MAX_K, Counter &MAX_GAPS,vector<Counter> &sum_successive_L,
                         ColumnReader1 &columnreader,
                         vector<vector<Counter> > &scheme_backtrace,
-                        const options_t &options);
+                        const options_t &options,HapCHATcore hap);
 void intersect(const Column &colQ, const Column &colJ, const Pointer &q,
                vector<vector<Pointer> > &forw_indexer, vector<vector<Pointer> > &back_indexer,
                vector<BitColumn> &pos_gaps, vector<Counter> &num_gaps, const bool &q_is_back);
@@ -149,7 +149,7 @@ Counter computeK(const Counter &cov, const double &alpha = 0.0, const double &er
 void add_xs(const vector<bool> &haplo1, const vector<bool> &haplo2,
             vector<char> &haplo1_out, vector<char> &haplo2_out,
             ColumnReader1 &column_reader, const options_t &options,
-            Counter &XS1, Counter &XS2, Counter &MISMATCHES);
+            Counter &XS1, Counter &XS2, Counter &MISMATCHES,HapCHATcore hap);
 int map_fragment(const vector<char> &read, const vector<unsigned int> &weights, const unsigned int offset,
                  const vector<bool> &haplo1_in, const vector<bool> &haplo2_in, unsigned int &total_errors);
 void make_haplo(const vector<bool> &haplo1, const vector<bool> &haplo2,
@@ -197,8 +197,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
   //try section
-  HapCHATcore h=HapCHATcore();
-  Column column=h.getColumn();
+  HapCHATcore hap=HapCHATcore();
   //Initializing the starting parameters: no competitive section
 
   //Pre-compute binomial values
@@ -234,7 +233,7 @@ int main(int argc, char** argv)
 
     if(columnreader_jump.num_cols() > 0) {
       dp(constants, options, columnreader_jump, haplotype1, haplotype2, step, OPT,
-         MAX_COV, MAX_L, MAX_K, MAX_GAPS, counter_block++);
+         MAX_COV, MAX_L, MAX_K, MAX_GAPS, counter_block++,hap);
     } else {
       DEBUG("jumped");
       ++counter_block;
@@ -259,7 +258,7 @@ int main(int argc, char** argv)
       vector<char> xs_haplotype2(columnreader_nojump.num_cols());
 
       add_xs(filled_haplo1, filled_haplo2, xs_haplotype1, xs_haplotype2, columnreader_nojump, options,
-             XS1, XS2, TOTAL_MISMATCHES);
+             XS1, XS2, TOTAL_MISMATCHES,hap);
 
       DEBUG("Added X's");
 
@@ -400,7 +399,7 @@ void write_haplotypes(const vector<vector<char> > &haplotype_blocks1, const vect
 void dp(const constants_t &constants, const options_t &options, ColumnReader1 &column_reader,
         vector<bool> &haplotype1, vector<bool> &haplotype2, Counter &step_global, Cost &OPT_global,
         Counter &MAX_COV_global, Counter &MAX_L_global, Counter &MAX_K_global,
-        Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK)
+        Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK,HapCHATcore hap)
 {
   Counter MAX_COV = 0;
   Counter MAX_K = 0;
@@ -411,7 +410,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
   vector<vector<Counter> > scheme_backtrace;
 
   computeInputParams(num_col, MAX_COV, MAX_L, MAX_K, MAX_GAPS, sum_successive_L,
-                     column_reader, scheme_backtrace, options);
+                     column_reader, scheme_backtrace, options,hap);
 
   MAX_COV_global = max(MAX_COV_global, MAX_COV);
   MAX_K_global = max(MAX_K_global, MAX_K);
@@ -548,17 +547,19 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 
   Counter l = 0;
   bool flag = true;
-
+  //readset
+  hap.reset();
   do {
     Pointer new_l_pointer = next(input_pointer, input.size(), l);
 
     if(l == 0) {
       column.clear();
     } else {
-      flag = column_reader.has_next();
+     flag = column_reader.has_next();
       column = column_reader.get_next();
+	//hap.print(column);
+	
     }
-
     insert_col_and_update(input, k_j, homo_cost, homo_weight, new_l_pointer, column,
                           options, homo_haplotypes, step + l);
 
@@ -566,7 +567,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
     //The short circuit && is fundamental to avoid an unexpected has_next that read a column
   } while(l < MAX_L && flag);
 
-
+  
   DEBUG(">> Initialization completed");
 
 
@@ -636,8 +637,8 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 
   //DP
 
-  //For all the columns
-
+  //For all the columns 
+  
   while(!check_end(column_reader, input, next(input_pointer, input.size(), 1), re_run_k))// INC-K && solution_existence)
     {
       current_best = Cost::INFTY;
@@ -662,8 +663,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
       if(!re_run_k) {
           //.:: Read Column
           column = column_reader.get_next();
-
-          insert_col_and_update(input, k_j, homo_cost, homo_weight, new_input_pointer,
+	 insert_col_and_update(input, k_j, homo_cost, homo_weight, new_input_pointer,
                                 column, options, homo_haplotypes, step + (MAX_L - 1));
           k_j_inc = k_j[input_pointer];
       }
@@ -1081,7 +1081,7 @@ void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
                         Counter &MAX_K, Counter &MAX_GAPS, vector<Counter> &sum_successive_L,
                         ColumnReader1 &column_reader,
                         vector<vector<Counter> > &scheme_backtrace,
-                        const options_t &options)
+                        const options_t &options,HapCHATcore hap)
 {
   column_reader.restart();
 
@@ -1092,7 +1092,8 @@ void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
   vector<unsigned int> k_j(num_cols);
   vector<Column>::iterator input_iterator(input.begin());
   vector<Counter> rows(num_cols * MAX_COVERAGE, 0);
-
+  //readset
+  hap.reset();
   do {
       Counter count_major = 0;
       Counter count_minor = 0;
@@ -1105,7 +1106,8 @@ void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
       if(input_iterator == input.begin()) {
         read_column.clear();
       } else {
-        read_column = column_reader.get_next();
+        //read_column = column_reader.get_next()
+	read_column =hap.getColumn();
       }
 
       current_column.resize(read_column.size(), Entry(-1, Entry::BLANK, 0));
@@ -1131,7 +1133,7 @@ void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
 
         ++rows[current_column[i].get_read_id()];
       }
-
+	
       //sufficient condition to check the feasibility for the homozygous transformation
       homo_cost[input_iterator - input.begin()] = std::min(count_major, count_minor);
 
@@ -1146,7 +1148,9 @@ void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
       MAX_GAPS = std::max(count_gaps, MAX_GAPS);
 
       ++input_iterator;
-  } while((input_iterator != input.end()) & column_reader.has_next());
+	//raeadset
+	//} while((input_iterator != input.end()) & column_reader.has_next());
+  } while((input_iterator != input.end()) & hap.hasNext());
 
   MAX_L = *max_element(rows.begin(), rows.end());
   MAX_L = std::max(MAX_L, static_cast<Counter>(2));
@@ -1261,6 +1265,7 @@ void intersect(const Column &colQ, const Column &colJ, const Pointer &q,
 void represent_column(const Column &column, BitColumn &result, Counter &cov,
                       BitColumn &gaps_mask, Counter &num_gaps)
 {
+
   result.reset();
   gaps_mask.reset();
   cov = 0;
@@ -1300,7 +1305,6 @@ void make_mask(BitColumn &mask, const BitColumn &mask_gaps, const unsigned int &
   given some column col, i.e., 1010, project out those positions in
   mask_out, i.e., 0110, resulting in projection 10 (note that coverage
   cov is 4 here)
-
   somewhat the inverse of 'make_mask' above
 */
 void project(BitColumn & projection, const BitColumn & col, const BitColumn & mask_out, const unsigned int & cov) {
@@ -1424,12 +1428,11 @@ void insert_col_and_update(vector<Column> &input, vector<Counter> &k_j, vector <
                            vector<Cost> &homo_weight, const Pointer &pointer, const Column &column, const options_t &options,
                            vector<bool> &kind_homozygous, const Counter &step)
 {
+
   Counter count_major = 0;
   Cost weight_major = 0;
-
   Counter count_minor = 0;
   Cost weight_minor = 0;
-
   unsigned int i = 0;
   for(i = 0; i < column.size(); i++)
     {
@@ -1453,7 +1456,7 @@ void insert_col_and_update(vector<Column> &input, vector<Counter> &k_j, vector <
         }
       }
     }
-
+ 
   if(i < input[pointer].size() && input[pointer][i].get_read_id() != -1)
     {
       input[pointer][i].set_read_id(-1);
@@ -1614,10 +1617,11 @@ Counter computeK(const Counter &cov, const double &alpha, const double &error_ra
 void add_xs(const vector<bool> &haplo1, const vector<bool> &haplo2,
             vector<char> &haplo1_out, vector<char> &haplo2_out,
             ColumnReader1 &column_reader, const options_t &options,
-            Counter &XS1, Counter &XS2, Counter &MISMATCHES)
+            Counter &XS1, Counter &XS2, Counter &MISMATCHES,HapCHATcore hap)
 {
   column_reader.restart();
-
+ //readset
+  hap.reset();
   vector<vector<char> > reads_matrix;
   vector<vector<unsigned int> > weights;
   vector<int> starting_positions;
@@ -1628,10 +1632,11 @@ void add_xs(const vector<bool> &haplo1, const vector<bool> &haplo2,
   vector<vector<unsigned int> > weight_mapping_haplo2(column_reader.num_cols());
 
   int current_column = -1;
-
-  while(column_reader.has_next()) {
-    vector<Entry> column = column_reader.get_next();
-
+	//readset
+ // while(column_reader.has_next()) {
+   while(hap.hasNext()){
+   // vector<Entry> column = column_reader.get_next();
+    vector<Entry> column = hap.getColumn();
     ++current_column;
 
     for(unsigned int i = 0; i < column.size(); ++i) {
