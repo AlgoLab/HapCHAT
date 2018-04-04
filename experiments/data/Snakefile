@@ -65,11 +65,14 @@ rule master :
 
 rule stats :
 	input :
-		expand('stats/bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.{ext}',
+		expand('stats/bam/{dataset}.pacbio.child.chr1.cov{cov}.{ext}',
 			dataset = datasets,
-			chromosome = chromosomes,
 			cov = range(25,65,5),
-			ext = ['coverage', 'avgrlen'])
+			ext = ['coverage', 'avgrlen']),
+
+		expand('stats/bam/na12878.pacbio.individual.chr{chromosome}.covall.{ext}',
+			chromosome = chromosomes,
+			ext = ['coverage', 'avgrlen']),
 
 #
 # obtain external dependencies: software and data files
