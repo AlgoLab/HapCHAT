@@ -91,19 +91,14 @@ rule shapeit_missing :
 
 
 giab_ftp = 'ftp://ftp-trace.ncbi.nlm.nih.gov/giab/ftp'
-rule download_ashkenazim :
+rule download_giab :
 	threads : 100
 	output :
-		protected('download/AshkenazimTrio/{file}.{ext,(bam|bam.bai|vcf.gz)}')
+		protected('download/giab/{file}.{ext,(bam|bam.bai|vcf.gz)}')
 
 	shell : '''
 
-   wget -O {output} {giab_ftp}/data/AshkenazimTrio/{wildcards.file}.{wildcards.ext} '''
-
-
-rule download_highconf :
-	output : 'download/highconf/{file}.vcf.gz'
-	shell : 'wget -O {output} {giab_ftp}/{wildcards.file}.vcf.gz'
+   wget -O {output} {giab_ftp}/{wildcards.file}.{wildcards.ext} '''
 
 
 reference_ftp = 'ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37'
@@ -138,7 +133,7 @@ def ashkenazim_trio_bam(wildcards) :
 	individual['chromosome'] = wildcards.chromosome
 	individual['ext'] = wildcards.ext
 
-	return 'download/AshkenazimTrio/HG00{id}_NA{na}_{name}/PacBio_MtSinai_NIST/MtSinai_blasr_bam_GRCh37/hg00{id}_gr37_{chromosome}.{ext}'.format(**individual)
+	return 'download/giab/data/AshkenazimTrio/HG00{id}_NA{na}_{name}/PacBio_MtSinai_NIST/MtSinai_blasr_bam_GRCh37/hg00{id}_gr37_{chromosome}.{ext}'.format(**individual)
 
 
 rule create_ashk_pacbio_links :
@@ -260,18 +255,32 @@ rule bam_to_fastq :
 #
 # prepare the downloaded VCF files: extract a chromosome, filter, etc.
 #----------------------------------------------------------------------
-vcf_path = 'download/AshkenazimTrio/analysis/NIST_CallsIn2Technologies_05182015'
+vcf_path = 'download/giab/data/AshkenazimTrio/analysis/NIST_CallsIn2Technologies_05182015'
 rule unzip_vcf :
 	input : vcf_path + '/HG{id}-multiall-fullcombine.vcf.gz'
 	output : 'unphased-ashk/HG{id,[0-9]+}-multiall-fullcombine.vcf'
 	shell : 'zcat {input} > {output}'
 
 
-highconf_path = 'download/highconf/release/AshkenazimTrio/HG002_NA24385_son/latest/GRCh37'
-highconf_basename = 'HG002_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-22_v.3.3.2_highconf_triophased'
-rule unzip_highconf :
-	input : highconf_path + '/' + highconf_basename + '.vcf.gz'
-	output : 'vcf/ashk.child.phased.vcf'
+def platinum_phasing(wildcards) :
+
+	individual = {
+		'ashk.child' : dict(
+				path = 'AshkenazimTrio/HG002_NA24385_son',
+				id = '2', chr = '22',
+				suffix = 'triophased'),
+		'na12878.individual' : dict(
+				path = 'NA12878_HG001',
+				id = '1', chr = 'X',
+				suffix = 'PGandRTGphasetransfer'),
+	}[wildcards.data]
+
+	return 'download/giab/release/{path}/latest/GRCh37/HG00{id}_GRCh37_GIAB_highconf_CG-IllFB-IllGATKHC-Ion-10X-SOLID_CHROM1-{chr}_v.3.3.2_highconf_{suffix}.vcf.gz'.format(**individual)
+
+
+rule unzip_platinum :
+	input : platinum_phasing
+	output : 'vcf/{data,(ashk.child|na12878.individual)}.phased.vcf'
 	shell : 'zcat {input} > {output}'
 
 
