@@ -90,8 +90,8 @@ using different versions of the tools.
 3. Install all dependencies available as Conda packages.
 
         conda install -y python pysam snakemake \
-            samtools=1.2 picard=1.126 bedtools=2.23.0 vcftools=0.1.14 \
-            bwa=0.7.12 pbsim=1.0.3 whatshap=0.13
+            bamtools=2.4 samtools=1.2 picard=1.126 bedtools=2.23.0 \
+            vcftools=0.1.14 bwa=0.7.12 pbsim=1.0.3 whatshap=0.13
 
 ## Run the workflow
 

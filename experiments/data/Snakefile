@@ -239,6 +239,19 @@ rule add_read_groups :
       LB=UNKNOWN PL=PACBIO PU=UNKNOWN SM={sample}) > {log} 2>&1 '''))
 
 
+rule split_bam :
+	input : 'bam/{file}.bam'
+
+	output :
+		expand('bam/{{file}}.chr{chromosome}.covall.bam',
+			chromosome = chromosomes)
+
+	shell : '''
+
+   bamtools split -in {input} -reference -refPrefix ""
+   rename 's/.bam/.covall.bam/' bam/{wildcards.file}.chr*.bam '''
+
+
 rule bam_to_fastq :
 	input : 'bam/{file}.bam'
 	output : 'fastq/{file}.fastq'
