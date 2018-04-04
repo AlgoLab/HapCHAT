@@ -328,6 +328,19 @@ rule unphase :
 	shell : '{whatshap} unphase {input} | tee {output} > /dev/null'
 
 
+rule unphase_na12878 :
+	input : 'vcf/na12878.individual.incorrect-chr.phased.vcf'
+	output : 'vcf/na12878.individual.incorrect-chr.unphased.vcf'
+	# pull the :PS from the FORMAT field and the final :-separated
+	# entry of the sample, because whatshap unphase seems to not
+	# deal in this case ... think about filing a bug report
+	shell : '''
+
+   sed '/^[^#]/ s/:PS\t/\t/' {input} | \
+   sed '/^[^#]/ s/:[^:]*$//' > {output}.tmp
+   whatshap unphase {output}.tmp > {output}
+   rm {output}.tmp '''
+
 #
 # infer phasing with SHAPEIT
 #----------------------------------------------------------------------
