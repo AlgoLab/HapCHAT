@@ -48,13 +48,18 @@ full_pattern = '{dataset,(ashk|sim|na12878)}.' + coverage_pattern
 #----------------------------------------------------------------------
 rule master :
 	input :
-		expand('bam/{dataset}.pacbio.child.chr{chromosome}.cov{cov}.bam',
+		expand('bam/{dataset}.pacbio.child.chr1.cov{cov}.bam',
 			dataset = datasets,
-			chromosome = chromosomes,
 			cov = [25]), # downsample until avg cov 25
 
-		expand('vcf/{dataset}.child.chr{chromosome}.{phases}.vcf',
+		expand('bam/na12878.pacbio.individual.chr{chromosome}.covall.bam',
+			chromosome = chromosomes),
+
+		expand('vcf/{dataset}.child.chr1.{phases}.vcf',
 			dataset = datasets,
+			phases = ['phased', 'unphased']),
+
+		expand('vcf/na12878.individual.chr{chromosome}.{phases}.vcf',
 			chromosome = chromosomes,
 			phases = ['phased', 'unphased']),
 
