@@ -160,8 +160,9 @@ rule calculate_coverage:
 	run :
 		bam = pysam.Samfile(input[0])
 		length = None
-			if e['SN'] == wildcards.chromosome:
 		for e in bam.header.get('SQ') :
+			chr = wildcards.chromosome
+			if e['SN'] == chr or e['SN'] == 'chr{}'.format(chr) :
 				length = e['LN']
 		assert length != None
 		shell('''
