@@ -36,12 +36,12 @@ whatshap = 'whatshap'
 shapeit = 'restricted-software/shapeit'
 
 # common patterns
-pattern = '{individual,(mother|father|child)}.chr{chromosome,[0-9]+}'
+pattern = '{individual,(individual|mother|father|child)}.chr{chromosome,[0-9]+}'
 hap_pattern = pattern + '.haplotype{hap,[12]}'
 platform_pattern = '{platform,[a-z]+}.' + pattern
-dataset_pattern = '{dataset,[a-z]+}.' + platform_pattern
+dataset_pattern = '{dataset,(ashk|sim|na12878)}.' + platform_pattern
 coverage_pattern = platform_pattern + '.cov{coverage,(all|[0-9]+)}'
-full_pattern = '{dataset,[a-z]+}.' + coverage_pattern
+full_pattern = '{dataset,(ashk|sim|na12878)}.' + coverage_pattern
 
 #
 # master rule
