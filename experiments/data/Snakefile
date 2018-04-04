@@ -311,8 +311,8 @@ rule filter_vcfs :
 
 
 rule split_vcf :
-	input : 'vcf/ashk.{entity}.{phase}.vcf'
-	output : 'vcf/ashk.{entity,(trio|child)}.chr{chromosome,[0-9]+}.{phase,(unphased|phased)}.vcf'
+	input : 'vcf/{dataset}.{entity}.{phase}.vcf'
+	output : 'vcf/{dataset,(ashk|na12878)}.{entity,(trio|child|individual.incorrect-chr)}.chr{chromosome,[0-9]+}.{phase,(unphased|phased)}.vcf'
 	message : 'Extracting chromosome {wildcards.chromosome} from {input}'
 	shell : '''
 
