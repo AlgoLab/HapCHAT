@@ -277,7 +277,7 @@ def platinum_phasing(wildcards) :
 				path = 'AshkenazimTrio/HG002_NA24385_son',
 				id = '2', chr = '22',
 				suffix = 'triophased'),
-		'na12878.individual' : dict(
+		'na12878.individual.incorrect-chr' : dict(
 				path = 'NA12878_HG001',
 				id = '1', chr = 'X',
 				suffix = 'PGandRTGphasetransfer'),
@@ -288,7 +288,7 @@ def platinum_phasing(wildcards) :
 
 rule unzip_platinum :
 	input : platinum_phasing
-	output : 'vcf/{data,(ashk.child|na12878.individual)}.phased.vcf'
+	output : 'vcf/{data,(ashk.child|na12878.individual.incorrect-chr)}.phased.vcf'
 	shell : 'zcat {input} > {output}'
 
 
