@@ -144,6 +144,14 @@ rule create_ashk_pacbio_links :
 	shell : 'ln -fsrv {input} {output}'
 
 
+rule create_na12878_pacbio_links :
+	input : 'download/giab/data/NA12878/NA12878_PacBio_MtSinai/sorted_final_merged.{ext}'
+
+	output : 'bam/na12878.pacbio.individual.{ext,(bam|bam.bai)}'
+
+	shell : 'ln -fsrv {input} {output}'
+
+
 rule calculate_coverage:
 	input : 'bam/' + full_pattern + '.bam'
 	output : 'stats/bam/' + full_pattern + '.coverage'
