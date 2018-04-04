@@ -35,6 +35,7 @@ public:
 	/** Assigns read_ids to all instances of Entry stored in the reads such that
 	 *  each read_id matches the index of the corresponding read in the ReadSet. */
 	void reassignReadIds();
+        
 private:
 	typedef struct read_comparator_t {
 		read_comparator_t() {}
@@ -80,10 +81,10 @@ private:
 		}
 	} name_and_source_id_hasher_t;
 
-	std::vector<Read*> reads;
 	// Maps names of reads it their index in the "reads" vector
 	typedef std::unordered_map<name_and_source_id_t,size_t,name_and_source_id_hasher_t> read_name_map_t;
 	read_name_map_t read_name_map;
+	std::vector<Read*> reads;
 };
 
 #endif
