@@ -341,6 +341,16 @@ rule unphase_na12878 :
    whatshap unphase {output}.tmp > {output}
    rm {output}.tmp '''
 
+
+rule correct_vcf_chr :
+	input : 'vcf/na12878.individual.incorrect-chr.chr{chromosome}.{phase}.vcf'
+	output : 'vcf/na12878.individual.chr{chromosome,[0-9]}.{phase,(unphased|phased)}.vcf'
+	shell : '''
+
+   sed '/^#/ s/##contig=<ID=/##contig=<ID=chr/' {input} | \
+   sed '/^[^#]/ s/^/chr/' > {output} '''
+
+
 #
 # infer phasing with SHAPEIT
 #----------------------------------------------------------------------
