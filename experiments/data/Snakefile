@@ -106,13 +106,13 @@ rule download_highconf :
 	shell : 'wget -O {output} {giab_ftp}/{wildcards.file}.vcf.gz'
 
 
-reference_url = 'ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37'
+reference_ftp = 'ftp://ftp.ncbi.nlm.nih.gov/1000genomes/ftp/technical/reference/human_g1k_v37'
 rule download_reference :
 	output : 'reference/human_g1k_v37.fasta'
 
 	shell : '''
 
-   wget -O {output}.gz.incomplete {reference_url}.fasta.gz
+   wget -O {output}.gz.incomplete {reference_ftp}.fasta.gz
    mv {output}.gz.incomplete {output}.gz
    # gunzip fails with "decompression OK, trailing garbage ignored" because
    # the file is razf-compressed (gzip-compatible, but with an index at end)
@@ -131,9 +131,9 @@ rule index_reference :
 def ashkenazim_trio_bam(wildcards) :
 
 	individual = {
-		'mother': dict(name='mother', id='4', na='24143'),
-		'father': dict(name='father', id='3', na='24149'),
-		'child': dict(name='son', id='2', na='24385'),
+		'mother' : dict(name='mother', id='4', na='24143'),
+		'father' : dict(name='father', id='3', na='24149'),
+		'child' : dict(name='son', id='2', na='24385'),
 	}[wildcards.individual]
 	individual['chromosome'] = wildcards.chromosome
 	individual['ext'] = wildcards.ext
@@ -146,19 +146,19 @@ rule create_ashk_pacbio_links :
 
 	output : 'bam/incorrect-readgroup/ashk.pacbio.' + pattern + '.covall.{ext,(bam|bam.bai)}'
 
-	shell: 'ln -fsrv {input} {output}'
+	shell : 'ln -fsrv {input} {output}'
 
 
 rule calculate_coverage:
-	input: 'bam/' + full_pattern + '.bam'
-	output: 'stats/bam/' + full_pattern + '.coverage'
-	message: 'Computing coverage for {input}'
+	input : 'bam/' + full_pattern + '.bam'
+	output : 'stats/bam/' + full_pattern + '.coverage'
+	message : 'Computing coverage for {input}'
 
-	run: 
+	run :
 		bam = pysam.Samfile(input[0])
 		length = None
-		for e in bam.header.get('SQ'):
 			if e['SN'] == wildcards.chromosome:
+		for e in bam.header.get('SQ') :
 				length = e['LN']
 		assert length != None
 		shell('''
