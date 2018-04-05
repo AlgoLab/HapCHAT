@@ -107,7 +107,10 @@ def setup_phasing(h0, h1, phase_set) :
             print(site, a, b, file = sys.stderr)
             continue
 
-        phasing[site] = '{}|{}:{}'.format(a, b, ps)
+        phasing[site] = {
+            'phasing' : '{}|{}'.format(a, b),
+            'ps'      : ps
+        }
 
     assert i == len(sites), 'number of sites different than haplotype length'
 
@@ -153,8 +156,8 @@ while i < len(a) : # bash-style argparse
 # MAIN
 #
 
-unphased = ['0/0', '0/1', '1/1', '1/0'] # (un-) phasings to expect
-heterozygous = ['0/1', '1/0']
+unphased = ['0/0', '0/1', '1/1', '1/0', '1/2', '2/1'] # (un-) phasings to expect
+heterozygous = ['0/1', '1/0', '1/2', '2/1']
 
 contig = ''
 snvs = set([])
@@ -172,12 +175,16 @@ for line in entree :
         assert contig == s[0], 'vcf file concerns more than one contig'
     contig = s[0]
 
+    gt, r_format = s[8].split(':',1)
+    unphasing, r_sample = s[9].split(':',1)
+
     # ensure that position is properly annotated, unphased (and 'known')
-    assert s[8] == 'GT', s[8] + ' is an unexpected annotation'
-    assert s[9] in unphased, s[9] + ' is phased or unknown'
+    assert gt == 'GT', s[8] + ' is an unexpected annotation'
+    assert unphasing in unphased, s[9] + ' is phased or unknown'
 
     # for now we consider only SNVs
-    if len(s[3]) == len(s[4]) == 1 :
+    ref, alt = s[3:5]
+    if len(ref) == len(alt) == 1 :
 
         pos = int(s[1]) # pos must be a unique integer
         assert pos not in snvs
@@ -186,15 +193,18 @@ for line in entree :
         # variants mode
         if variantsmode :
             if heterozygousmode :
-                if s[9] in heterozygous : # snv is heterozygous
-                    print('\t'.join(s[1:2] + s[3:5]))
+                if unphasing in heterozygous : # snv is heterozygous
+                    print(pos, ref, alt, sep = '\t')
             else :
-                print('\t'.join(s[1:2] + s[3:5]))
+                print(pos, ref, alt, sep = '\t')
 
         # phasing mode
         if phasingmode :
             if pos in phasing :
-                print('\t'.join(s[:8] + ['GT:PS', phasing[pos]] + s[11:]))
+                tagged = '{}:{}:PS'.format(gt, r_format)
+                pp = phasing[pos]
+                phased = '{}:{}:{}'.format(pp['phasing'], r_sample, pp['ps'])
+                print(*s[:8], tagged, phased, *s[11:], sep = '\t')
             else :
                 sys.stdout.write(line)
 
