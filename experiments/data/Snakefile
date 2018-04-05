@@ -14,7 +14,7 @@ if 'TMPDIR' in os.environ:
 
 datasets = ['ashk', 'sim']
 individuals = ['child']
-chromosomes = [1]
+chromosomes = range(1,23)
 reference = 'reference/human_g1k_v37.fasta'
 role_to_sampleid = {
 	'mother' : 'HG004',
