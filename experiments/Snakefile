@@ -342,7 +342,8 @@ rule run_whatshap :
 
    ulimit -Sv {memlimit}
    {time} -v -o {log.time} {timeout} {timelimit} \
-      whatshap phase -o {output} {params.realignment} -H {params.h} \
+      whatshap phase --ignore-read-groups \
+         -o {output} {params.realignment} -H {params.h} \
          {input.vcf} {input.bam} > {log.log} 2>&1 || true
    touch {output} '''
 
@@ -671,7 +672,8 @@ rule get_wif :
 	shell : '''
 
    {time} -v -o {log.time} \
-      {input.prgm} phase -o /dev/null {params.realignment} \
+      {input.prgm} phase --ignore-read-groups \
+         -o /dev/null {params.realignment} \
          --output-wif {output} -H {params.h} \
          {input.vcf} {input.bam} > {log.transcript} 2> {log.log} '''
 
