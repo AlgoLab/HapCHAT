@@ -22,9 +22,12 @@ class HapCHATcore {
 private: 
 	ReadSet* readset;
 	Iterator* iterator;
+	bool end;
 public:
 	HapCHATcore(ReadSet* read_set) : readset(read_set){
-	this->iterator=new Iterator(read_set);
+	readset->reassignReadIds();
+	this->iterator=new Iterator(readset);
+	end=false;
 	};
 	HapCHATcore(){
 	//create a readset to try the class
@@ -54,7 +57,7 @@ public:
 		read3->addVariant(9011585,1,10);
 		read3->addVariant(9011721,1,13);
 		read3->addVariant(9012775,1,14);
-		read3->addVariant(9013095,0,10);
+		read3->addVariant(9013096,0,10);
 		read3->addVariant(9013969,1,13);
 		readset->add(read3);
 	
@@ -66,36 +69,45 @@ public:
 		read4->addVariant(9011536,0,12);
 		read4->addVariant(9011585,0,11);
 		readset->add(read4);
-		readset->reassignReadIds();
+		
+		end=false;
 		this->iterator=new Iterator(readset);
+		readset->reassignReadIds();
 	};
 
 	//take the current column 
 	Column getColumn(){
+	if(hasNext()){
 		unique_ptr<vector<const Entry *> > next;
 		//if(iterator->it.has_next()) { cout <<"has next" << endl; } // sanity check
+		
 		next= iterator->it.get_next();
 		vector<const Entry*>* p=next.release();
 		Column column;
+		
 		for(unsigned int i=0;i<p->size();i++){
-			Entry e =Entry(
+			/*Entry e =Entry(
 			p->at(i)->get_read_id(),
 			p->at(i)->get_allele_type(),
 			p->at(i)->get_phred_score()
 			);
-			e.set_gap(p->at(i)->is_gap());
-			column.push_back(e);
+			e.set_gap(p->at(i)->is_gap());*/
+			column.push_back(*p->at(i));
 		}
 		return column;
+		}
+		end=true;
+    return Column(0, Entry(-1, Entry::BLANK, 0));
 	};
 	
 	//return true if there is other column
 	bool hasNext(){
-		return iterator->it.has_next(); 
+		return iterator->it.has_next();
 	}
 	//set the pointer to the first column
 	void reset(){
 		iterator->it.jump_to_column(0);
+		end=false;
 	};
 	//print the readid,allele,quality of each entry of the column(for test)
 	void print(Column column){
@@ -109,5 +121,7 @@ unsigned int columnCount(){
 return iterator->it.get_column_count();
 
 };
-
+bool isEnded(){
+return end;
+}
 };

@@ -48,7 +48,7 @@
 
 // Log messages with DEBUG priority and higher
 #define LOG_MSG
-#define LOG_THRESHOLD LOG_LEVEL_INFO
+#define LOG_THRESHOLD LOG_LEVEL_TRACE
 // Include log facilities. It should the last include!!
 #include "log.h"
 
@@ -70,9 +70,9 @@ Pointer prev(const Pointer &indexer_pointer, const int &total_size, const int &s
 }
 
 static inline
-bool check_end(ColumnReader1 &column_reader, const vector<Column> &input, const Pointer &pointer, const bool &re_run)
+bool check_end(HapCHATcore hap, const vector<Column> &input, const Pointer &pointer, const bool &re_run)
 {
-  return (!re_run && (!column_reader.has_next() && (input[pointer][0].get_read_id() == -1)));
+  return (!re_run && (hap.isEnded() && (input[pointer][0].get_read_id() == -1)));
 }
 
 static inline
@@ -95,14 +95,14 @@ void replace_if_less(T& a, const T& b) {
   if(a > b) { a = b;}
 }
 
-void fill_haplotypes(ColumnReader1 &columnreader, const vector<bool> &haplotype1, const vector<bool> &haplotype2,
+void fill_haplotypes(const vector<bool> &haplotype1, const vector<bool> &haplotype2,
                      vector<bool> &complete_haplo1, vector<bool> &complete_haplo2, const options_t &optionts,HapCHATcore hap);
-void fill_haplotypes(ColumnReader1 &columnreader, const vector<bool> &haplotype1, const vector<bool> &haplotype2,
+void fill_haplotypes(const vector<bool> &haplotype1, const vector<bool> &haplotype2,
                      vector<char> &output_block1, vector<char> &output_block2, const options_t &optionts,HapCHATcore hap);
 void write_haplotypes(const vector<vector<char> > &haplotype_blocks1, const vector<vector<char> > &haplotype_blocks2,
                       ofstream &ofs);
 
-void dp(const constants_t &constants, const options_t &options, ColumnReader1 &column_reader,
+void dp(const constants_t &constants, const options_t &options, 
         vector<bool> &haplotype1, vector<bool> &haplotype2, Counter &step_global, Cost &OPT_global,
         Counter &MAX_COV_global, Counter &MAX_L_global, Counter &MAX_K_global,
         Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK,HapCHATcore hap);
@@ -110,7 +110,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 
 void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
                         Counter &MAX_K, Counter &MAX_GAPS,vector<Counter> &sum_successive_L,
-                        ColumnReader1 &columnreader,
+                    
                         vector<vector<Counter> > &scheme_backtrace,
                         const options_t &options,HapCHATcore hap);
 void intersect(const Column &colQ, const Column &colJ, const Pointer &q,
@@ -146,7 +146,7 @@ void reconstruct_haplotypes(const vector<vector<vector<Backtrace1> > > &backtrac
 Counter computeK(const Counter &cov, const double &alpha = 0.0, const double &error_rate = 0.0);
 void add_xs(const vector<bool> &haplo1, const vector<bool> &haplo2,
             vector<char> &haplo1_out, vector<char> &haplo2_out,
-            ColumnReader1 &column_reader, const options_t &options,
+            const options_t &options,
             Counter &XS1, Counter &XS2, Counter &MISMATCHES,HapCHATcore hap);
 int map_fragment(const vector<char> &read, const vector<unsigned int> &weights, const unsigned int offset,
                  const vector<bool> &haplo1_in, const vector<bool> &haplo2_in, unsigned int &total_errors);
@@ -226,38 +226,38 @@ int main(int argc, char** argv)
     Block block = blockreader.get_block();
     DEBUG("BLOCK: "<< counter_block);
 
-    ColumnReader1 columnreader_jump(block, !options.all_heterozygous);
+    //ColumnReader1 columnreader_jump(block, !options.all_heterozygous);
 
     vector<bool> haplotype1(hap.columnCount());
     vector<bool> haplotype2(hap.columnCount());
 
-    if(columnreader_jump.num_cols() > 0) {
-      dp(constants, options, columnreader_jump, haplotype1, haplotype2, step, OPT,
+    if(hap.columnCount()> 0) {
+      dp(constants, options, haplotype1, haplotype2, step, OPT,
          MAX_COV, MAX_L, MAX_K, MAX_GAPS, counter_block++,hap);
     } else {
       DEBUG("jumped");
       ++counter_block;
     }
 
-    ColumnReader1 columnreader_nojump(block, false);
+    //ColumnReader1 columnreader_nojump(block, false);
 
-    counter_columns += columnreader_nojump.num_cols();
-    counter_inhomo += (columnreader_nojump.num_cols() - columnreader_jump.num_cols());
+    counter_columns += hap.columnCount();
+   // counter_inhomo += (columnreader_nojump.num_cols() - columnreader_jump.num_cols());
 
     if(!options.no_xs) {
-      vector<bool> filled_haplo1(columnreader_nojump.num_cols());
-      vector<bool> filled_haplo2(columnreader_nojump.num_cols());
+      vector<bool> filled_haplo1(hap.columnCount());
+      vector<bool> filled_haplo2(hap.columnCount());
 
       DEBUG("Starting fill");
 
-      fill_haplotypes(columnreader_nojump, haplotype1, haplotype2, filled_haplo1, filled_haplo2, options,hap);
+      fill_haplotypes( haplotype1, haplotype2, filled_haplo1, filled_haplo2, options,hap);
 
       DEBUG("Filled haplotypes");
 
-      vector<char> xs_haplotype1(columnreader_nojump.num_cols());
-      vector<char> xs_haplotype2(columnreader_nojump.num_cols());
+      vector<char> xs_haplotype1(hap.columnCount());
+      vector<char> xs_haplotype2(hap.columnCount());
 
-      add_xs(filled_haplo1, filled_haplo2, xs_haplotype1, xs_haplotype2, columnreader_nojump, options,
+      add_xs(filled_haplo1, filled_haplo2, xs_haplotype1, xs_haplotype2, options,
              XS1, XS2, TOTAL_MISMATCHES,hap);
 
       DEBUG("Added X's");
@@ -266,10 +266,10 @@ int main(int argc, char** argv)
       haplotype_blocks2.push_back(xs_haplotype2);
 
     } else {
-      vector<char> output_block1(columnreader_nojump.num_cols());
-      vector<char> output_block2(columnreader_nojump.num_cols());
+      vector<char> output_block1(hap.columnCount());
+      vector<char> output_block2(hap.columnCount());
 
-      fill_haplotypes(columnreader_nojump, haplotype1, haplotype2, output_block1, output_block2, options,hap);
+      fill_haplotypes(haplotype1, haplotype2, output_block1, output_block2, options,hap);
 
       DEBUG("Filled haplotypes");
 
@@ -313,10 +313,9 @@ int main(int argc, char** argv)
 
 
 
-void fill_haplotypes(ColumnReader1 &columnreader, const vector<bool> &haplotype1, const vector<bool> &haplotype2,
+void fill_haplotypes( const vector<bool> &haplotype1, const vector<bool> &haplotype2,
                      vector<bool> &complete_haplo1, vector<bool> &complete_haplo2, const options_t &options,HapCHATcore hap)
 {
-  columnreader.restart();
 	hap.reset();
   vector<bool>::const_iterator ihap1 = haplotype1.begin();
   vector<bool>::const_iterator ihap2 = haplotype2.begin();
@@ -344,10 +343,9 @@ void fill_haplotypes(ColumnReader1 &columnreader, const vector<bool> &haplotype1
 }
 
 
-void fill_haplotypes(ColumnReader1 &columnreader, const vector<bool> &haplotype1, const vector<bool> &haplotype2,
+void fill_haplotypes( const vector<bool> &haplotype1, const vector<bool> &haplotype2,
                      vector<char> &output_block1, vector<char> &output_block2, const options_t &options,HapCHATcore hap)
 {
-  columnreader.restart();
 	hap.reset();
   vector<bool>::const_iterator ihap1 = haplotype1.begin();
   vector<bool>::const_iterator ihap2 = haplotype2.begin();
@@ -399,7 +397,7 @@ void write_haplotypes(const vector<vector<char> > &haplotype_blocks1, const vect
 
 
 
-void dp(const constants_t &constants, const options_t &options, ColumnReader1 &column_reader,
+void dp(const constants_t &constants, const options_t &options, 
         vector<bool> &haplotype1, vector<bool> &haplotype2, Counter &step_global, Cost &OPT_global,
         Counter &MAX_COV_global, Counter &MAX_L_global, Counter &MAX_K_global,
         Counter &MAX_GAPS_global, const Counter &COUNTER_BLOCK,HapCHATcore hap)
@@ -414,7 +412,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
   vector<vector<Counter> > scheme_backtrace;
 	hap.reset();
   computeInputParams(num_col, MAX_COV, MAX_L, MAX_K, MAX_GAPS, sum_successive_L,
-                     column_reader, scheme_backtrace, options,hap);
+                     scheme_backtrace, options,hap);
 
   MAX_COV_global = max(MAX_COV_global, MAX_COV);
   MAX_K_global = max(MAX_K_global, MAX_K);
@@ -540,16 +538,9 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 
   Combinations generator;
   BalancedCombinations balanced_generator;
-  column_reader.restart();
   hap.reset();
   Counter step = 0;
   Column column;
-  cout<< "my column"<<endl;
-	while(hap.hasNext()) hap.print(hap.getColumn());
-	cout<< "Column_reader column"<<endl;
-	while(column_reader.has_next())hap.print(column_reader.get_next());
-	hap.reset();
-	column_reader.restart();
 
   //Place the first and the next L columns in the positions of input data structure
 
@@ -565,9 +556,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
     if(l == 0) {
       column.clear();
     } else {
-      flag = column_reader.has_next();
 			flag = hap.hasNext();
-      column = column_reader.get_next();
       column=hap.getColumn();
       
     }
@@ -577,7 +566,6 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
     l++;
     //The short circuit && is fundamental to avoid an unexpected has_next that read a column
   } while(l < MAX_L && flag);
-
 
   DEBUG(">> Initialization completed");
 
@@ -619,7 +607,6 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
   //Make a prevision for all the successive column
   has_successive = true;
   Counter p = 1;
-
   //XXX: Is it necessary?
   do {
     //All the condition that have to be satisfied for the next column
@@ -649,7 +636,7 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
   
   //For all the columns
 
-  while(!check_end(column_reader, input, next(input_pointer, input.size(), 1), re_run_k))// INC-K && solution_existence)
+  while(!check_end(hap, input, next(input_pointer, input.size(), 1), re_run_k))// INC-K && solution_existence)
     {
       current_best = Cost::INFTY;
       solution_existence = false;
@@ -663,17 +650,18 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 
       // >>>>>>>>>>>>>>>>>>>>>> UPDATE DATA STRUCTURE <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
       //.:: Update input
-
+			
       //.:: Update common pointer
       input_pointer = next(input_pointer, input.size(), 1);
 
       Pointer new_input_pointer = next(input_pointer, input.size(), MAX_L - 1);
 
-      // INC-K
+      // INC-K 
       if(!re_run_k) {
           //.:: Read Column
-          column = column_reader.get_next();
-          hap.getColumn();
+          column = hap.getColumn();
+          hap.print(column);
+          
           insert_col_and_update(input, k_j, homo_cost, homo_weight, new_input_pointer,
                                 column, options, homo_haplotypes, step + (MAX_L - 1));
           k_j_inc = k_j[input_pointer];
@@ -1089,11 +1077,10 @@ void dp(const constants_t &constants, const options_t &options, ColumnReader1 &c
 //Change such that we do not take all the input in memory!!
 void computeInputParams(Counter &num_cols, Counter &MAX_COV, Counter &MAX_L,
                         Counter &MAX_K, Counter &MAX_GAPS, vector<Counter> &sum_successive_L,
-                        ColumnReader1 &column_reader,
                         vector<vector<Counter> > &scheme_backtrace,
                         const options_t &options,HapCHATcore hap)
 {
-  column_reader.restart();
+ 
 	hap.reset();
   num_cols = hap.columnCount() + 1; //We add a starting dummy empty column
 
@@ -1497,7 +1484,7 @@ void insert_col_and_update(vector<Column> &input, vector<Counter> &k_j, vector <
     homo_cost[pointer] = MAX_COVERAGE + 1;
   }
   //Add for the all-heterozygous assumption
-  //homo_weight[pointer] =  homo_weight[pointer] + 100000;//column.size()==1 ? 0 : 1000000;
+  //homo_weight[pointer] =  homo_weight[pointer] + 100000;column.size()==1 ? 0 : 1000000;
 }
 
 
@@ -1619,10 +1606,10 @@ Counter computeK(const Counter &cov, const double &alpha, const double &error_ra
 
 void add_xs(const vector<bool> &haplo1, const vector<bool> &haplo2,
             vector<char> &haplo1_out, vector<char> &haplo2_out,
-            ColumnReader1 &column_reader, const options_t &options,
+            const options_t &options,
             Counter &XS1, Counter &XS2, Counter &MISMATCHES,HapCHATcore hap)
 {
-  column_reader.restart();
+  
 	hap.reset();
   vector<vector<char> > reads_matrix;
   vector<vector<unsigned int> > weights;
