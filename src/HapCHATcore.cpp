@@ -78,11 +78,13 @@ public:
 		vector<const Entry*>* p=next.release();
 		Column column;
 		for(unsigned int i=0;i<p->size();i++){
-			column.push_back(Entry(
+			Entry e =Entry(
 			p->at(i)->get_read_id(),
 			p->at(i)->get_allele_type(),
 			p->at(i)->get_phred_score()
-			));
+			);
+			e.set_gap(p->at(i)->is_gap());
+			column.push_back(e);
 		}
 		return column;
 	};
@@ -103,4 +105,9 @@ public:
 		};
 		cout << endl;
 	};
+unsigned int columnCount(){
+return iterator->it.get_column_count();
+
+};
+
 };
