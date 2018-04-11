@@ -48,7 +48,7 @@
 
 // Log messages with DEBUG priority and higher
 #define LOG_MSG
-#define LOG_THRESHOLD LOG_LEVEL_TRACE
+#define LOG_THRESHOLD LOG_LEVEL_INFO
 // Include log facilities. It should the last include!!
 #include "log.h"
 
@@ -208,7 +208,7 @@ int main(int argc, char** argv)
   Counter counter_block = 0;
   Counter counter_columns = 0;
   Counter counter_inhomo = 0;
-  BlockReader blockreader(options.input_filename, MAX_COVERAGE, options.unweighted, options.unique);
+  //BlockReader blockreader(options.input_filename, MAX_COVERAGE, options.unweighted, options.unique);
 
   Counter MAX_COV = 0;
   Counter MAX_L = 0;
@@ -221,9 +221,9 @@ int main(int argc, char** argv)
   vector<vector<char> > haplotype_blocks1;
   vector<vector<char> > haplotype_blocks2;
 	hap.reset();
-  while(blockreader.has_next()) {
+  //while(blockreader.has_next()) {
   	
-    Block block = blockreader.get_block();
+    //Block block = blockreader.get_block();
     DEBUG("BLOCK: "<< counter_block);
 
     //ColumnReader1 columnreader_jump(block, !options.all_heterozygous);
@@ -277,7 +277,7 @@ int main(int argc, char** argv)
       haplotype_blocks2.push_back(output_block2);
     }
 
-  }
+  //}
 
   INFO("");
 
@@ -660,7 +660,7 @@ void dp(const constants_t &constants, const options_t &options,
       if(!re_run_k) {
           //.:: Read Column
           column = hap.getColumn();
-          hap.print(column);
+          
           
           insert_col_and_update(input, k_j, homo_cost, homo_weight, new_input_pointer,
                                 column, options, homo_haplotypes, step + (MAX_L - 1));
