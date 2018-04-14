@@ -1,0 +1,35 @@
+* INFO (main        :hat_core.cpp:169 ) 18:05:50 | HapCHAT (master@d24c263-dirty)
+* INFO (main        :hat_core.cpp:173 ) 18:05:50 | Starting...
+* INFO (main        :hat_core.cpp:180 ) 18:05:50 | Arguments:
+* INFO (main        :hat_core.cpp:181 ) 18:05:50 | Initialized? True
+* INFO (main        :hat_core.cpp:182 ) 18:05:50 | Input filename: 'test.wif'
+* INFO (main        :hat_core.cpp:183 ) 18:05:50 | Haplotype filename: 'test.hap'
+* INFO (main        :hat_core.cpp:184 ) 18:05:50 | Discard weights? False
+* INFO (main        :hat_core.cpp:185 ) 18:05:50 | Do not add X's? False
+* INFO (main        :hat_core.cpp:186 ) 18:05:50 | All-heterozygous assumption? True
+* INFO (main        :hat_core.cpp:187 ) 18:05:50 | Input as unique block? False
+* INFO (main        :hat_core.cpp:188 ) 18:05:50 | Error rate: 0.05
+* INFO (main        :hat_core.cpp:189 ) 18:05:50 | Alpha: 0.01
+* INFO (main        :hat_core.cpp:190 ) 18:05:50 | Balancing? False
+* INFO (main        :hat_core.cpp:191 ) 18:05:50 | Balancing activates after coverage: 20
+* INFO (main        :hat_core.cpp:192 ) 18:05:50 | Balance ratio: 0.5
+* INFO (dp          :hat_core.cpp:420 ) 18:05:50 | ::== Starting parameters:  MAX_COV = 30 // MAX_L = 2 // MAX_K = 5 // MAX_GAPS = 5
+* INFO (dp          :hat_core.cpp:420 ) 18:05:52 | ::== Starting parameters:  MAX_COV = 21 // MAX_L = 2 // MAX_K = 4 // MAX_GAPS = 0
+* INFO (dp          :hat_core.cpp:420 ) 18:05:52 | ::== Starting parameters:  MAX_COV = 23 // MAX_L = 2 // MAX_K = 4 // MAX_GAPS = 2
+* INFO (dp          :hat_core.cpp:420 ) 18:05:52 | ::== Starting parameters:  MAX_COV = 30 // MAX_L = 2 // MAX_K = 5 // MAX_GAPS = 8
+* INFO (dp          :hat_core.cpp:420 ) 18:05:55 | ::== Starting parameters:  MAX_COV = 30 // MAX_L = 2 // MAX_K = 5 // MAX_GAPS = 8
+* INFO (dp          :hat_core.cpp:420 ) 18:06:00 | ::== Starting parameters:  MAX_COV = 30 // MAX_L = 2 // MAX_K = 5 // MAX_GAPS = 7
+* INFO (main        :hat_core.cpp:280 ) 18:06:03 | 
+* INFO (main        :hat_core.cpp:282 ) 18:06:03 | OPTIMUM:  4860
+* INFO (main        :hat_core.cpp:284 ) 18:06:03 | 
+* INFO (main        :hat_core.cpp:286 ) 18:06:03 | MAX_COV:  30
+* INFO (main        :hat_core.cpp:287 ) 18:06:03 | MAX_L:  2
+* INFO (main        :hat_core.cpp:288 ) 18:06:03 | MAX_K:  5
+* INFO (main        :hat_core.cpp:289 ) 18:06:03 | MAX_GAPS:  8
+* INFO (main        :hat_core.cpp:290 ) 18:06:03 | # of blocks:  6
+* INFO (main        :hat_core.cpp:291 ) 18:06:03 | # of columns:  290
+* INFO (main        :hat_core.cpp:292 ) 18:06:03 | # of homozygous in input:  0
+* INFO (main        :hat_core.cpp:294 ) 18:06:03 | 
+* INFO (main        :hat_core.cpp:296 ) 18:06:03 | X's INSERTED IN THE FIRST HAPLOTYPE:  0
+* INFO (main        :hat_core.cpp:297 ) 18:06:03 | X's INSERTED IN THE SECOND HAPLOTYPE:  0
+* INFO (main        :hat_core.cpp:298 ) 18:06:03 | TOTAL MISMATCHES:  4140
