@@ -174,7 +174,6 @@ int main(int argc, char** argv)
   //Counter threshold_coverage = 30;
 
   const constants_t constants;
-
   const options_t options= parse_arguments(argc, argv);
   INFO("Arguments:");
   INFO("Initialized? " << (options.options_initialized?"True":"False"));
@@ -195,8 +194,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
   //Readset section
-	HapCHATcore hap=HapCHATcore();
-	
+	HapCHATcore hap=HapCHATcore(argv[2]);
   //Initializing the starting parameters: no competitive section
 	
   //Pre-compute binomial values

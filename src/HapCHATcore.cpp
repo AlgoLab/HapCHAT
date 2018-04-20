@@ -4,11 +4,19 @@
 #include <algorithm>
 #include <unordered_set>
 #include <iomanip>
+#include <string>
+#include <fstream>
+#include <vector>
+#include <ios>
+
 //include Readset/HapChat libraries
 #include "readset.h"
 #include "columniterator.h"
 #include "basic_types.h"
 #include "entry.h"
+
+
+
 
 using namespace std;
 
@@ -32,52 +40,57 @@ class HapCHATcore {
 		this->iterator=new Iterator(read_set);
 		end=false;
 		};
-		//try constructor
-		HapCHATcore(){
-			ReadSet *read_set=new ReadSet();
-			Read* read1 = new Read ("0",254,0,0);
-			read1->addVariant(9010253,0,4);
-			read1->addVariant(9010806,0,10);
-			read1->addVariant(9010983,0,5);
-			read1->addVariant(9011045,0,14);
-			read1->addVariant(9011536,0,14);
-			read1->addVariant(9011585,0,13);
-			read1->addVariant(9011721,0,13);
-			read_set->add(read1);
-		
-			Read* read2 = new Read ("1",254,0,0);
-			read2->addVariant(9010253,1,12);
-			read2->addVariant(9010569,1,4);
-			read2->addVariant(9010806,1,9);
-			read_set->add(read2);
-		
-			Read* read3 = new Read ("2",254,0,0);
-			read3->addVariant(9010253,1,13);
-			read3->addVariant(9010569,1,11);
-			read3->addVariant(9010983,0,1);
-			read3->addVariant(9011045,0,6);
-			read3->addVariant(9011536,1,4);
-			read3->addVariant(9011585,1,10);
-			read3->addVariant(9011721,1,13);
-			read3->addVariant(9012775,1,14);
-			read3->addVariant(9013096,0,10);
-			read3->addVariant(9013969,1,13);
-			read_set->add(read3);
-		
-			Read* read4 = new Read ("3",254,0,0);
-			read4->addVariant(9010253,0,13);
-			read4->addVariant(9010806,0,9);
-			read4->addVariant(9010983,0,14);
-			read4->addVariant(9011045,0,11);
-			read4->addVariant(9011536,0,12);
-			read4->addVariant(9011585,0,11);
-			read_set->add(read4);
-			
-			end=false;
-			this->iterator=new Iterator(read_set);
-			read_set->reassignReadIds();
-		};
+		HapCHATcore(string filename){
+		 ifstream input;
+		 int position,allele;
+		 unsigned int phred,nread=0;
+		 ReadSet* readset =new ReadSet();
+		 Read* read;
+		 bool flag;
+		 stringstream sline;
+  		string entry;
+  		string token;
+		 try {
+     			 input.open(filename, ios::in);
+    		 } catch(exception & e) { 
+      			cerr << "ERROR: failing opening the input file: " << filename << "\": " << e.what() << endl;
+      			exit(EXIT_FAILURE);
+    		 }
 
+    if(!input.is_open()) {
+    		  cerr << "ERROR: failing opening the input file: " << filename << endl;
+    	  exit(EXIT_FAILURE);
+    	}
+    	string line;
+    	while(!input.eof()){
+    	getline(input, line, '\n');
+    	read=new Read(to_string(nread),0,0,0);
+    	nread++;
+    	if(!line.empty()){
+    			sline=stringstream(line);
+    			flag=true;
+    			while(flag){
+    			getline(sline,entry,':');
+    			stringstream sentry(entry);
+    			sentry >> token;
+    			if(!token.compare("#") == 0){
+    			position=atoi(token.c_str());
+    			sentry >> token;
+    			sentry >> token;
+					allele = atoi(token.c_str());    			
+    			sentry >> token;
+    			phred = atoi(token.c_str());
+    			read->addVariant(position,allele,phred);
+    			}else{flag=false;}
+    			}
+    		readset->add(read);    		
+    	}   	
+    	}
+    	end=false;
+			this->iterator=new Iterator(readset);
+			readset->reassignReadIds();
+					};
+					
 		//take the current column 
 		Column getColumn(){
 			if(hasNext()){
