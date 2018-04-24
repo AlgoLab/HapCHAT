@@ -27,20 +27,26 @@ typedef struct Iterator{
 	Iterator():it(*new ReadSet(),nullptr){};
 
 }Iterator;
-
+typedef vector<Read*> reads;
+typedef vector<reads> blocker;
 class HapCHATcore {
 
 	private: 
 		Iterator* iterator;
-		bool end;
+		bool end,unique;
+		blocker vblock;
+		unsigned int blockn;
+		vector<unsigned int> min,max;
 	public:
 		//standard constructor
 		HapCHATcore(ReadSet* read_set){
 		read_set->reassignReadIds();
 		this->iterator=new Iterator(read_set);
 		end=false;
+		vblock=blocker();
 		};
-		HapCHATcore(string filename){
+		HapCHATcore(string filename,bool que){
+		 unique=que;
 		 ifstream input;
 		 int position,allele;
 		 unsigned int phred,nread=0;
@@ -86,11 +92,73 @@ class HapCHATcore {
     		readset->add(read);    		
     	}   	
     	}
+    	
     	end=false;
-			this->iterator=new Iterator(readset);
-			readset->reassignReadIds();
+    	readset->reassignReadIds();
+    		readset->sort();
+    	this->iterator=new Iterator(readset);
+    		
+    	if(unique){
+			
+		
+			}else{
+			blockn=-1;
+			bool overflag;
+			unsigned int readn;
+			readn=iterator->it.get_read_count();
+			unsigned int minn,maxx;
+			for(unsigned int i=0;i<readn;i++){
+			 read=readset->get(i);
+			 minn=read->firstPosition();
+			 maxx=read->lastPosition();
+			 if(min.size()==0){
+			 	min.push_back(minn);
+			 	max.push_back(maxx);
+			 	vblock.push_back(reads());
+			 	}
+			 else{
+			 	for(unsigned int j=0;j<min.size();j++){
+			 	overflag=minn<min.at(j)&&maxx>max.at(j);
+			 		if((minn>=min.at(j)&&minn<=max.at(j))||(maxx>=min.at(j)&&maxx<max.at(j))||overflag){
+			 		minn=std::min(min.at(j),minn);
+			 		maxx=std::max(max.at(j),maxx);
+			 		min.at(j)=minn;
+			 		max.at(j)=maxx;
+			 		vblock.at(j).push_back(read);
+			 		minn=0;
+			 		break;
+			 		}
+			 	
+			 		}
+			 		if(minn!=0){
+			 			min.push_back(minn);
+			 			max.push_back(maxx);
+			 			vblock.push_back(reads());
+			 			vblock.at(vblock.size()-1).push_back(read);
+			 		 }
+			 
+			 };
+			 
+			 
+			}
+			}
 					};
-					
+		bool hasNextBlock(){
+		if(unique){
+		unique=false;
+		return true;
+		}
+		blockn++;
+		if(blockn>=vblock.size()) return false;
+		ReadSet* readset=new ReadSet();
+		for(unsigned int i=0;i<vblock.at(blockn).size();i++){
+			readset->add(vblock.at(blockn).at(i));		
+		}
+		readset->reassignReadIds();
+    readset->sort();
+    this->iterator=new Iterator(readset);
+		return true;
+		}
 		//take the current column 
 		Column getColumn(){
 			if(hasNext()){

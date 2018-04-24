@@ -194,7 +194,7 @@ int main(int argc, char** argv)
     exit(EXIT_FAILURE);
   }
   //Readset section
-	HapCHATcore hap=HapCHATcore(argv[2]);
+	HapCHATcore hap=HapCHATcore(options.input_filename,options.unique);
   //Initializing the starting parameters: no competitive section
 	
   //Pre-compute binomial values
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
   vector<vector<char> > haplotype_blocks1;
   vector<vector<char> > haplotype_blocks2;
 	hap.reset();
-  //while(blockreader.has_next()) {
+  while(hap.hasNextBlock()) {
   	
     //Block block = blockreader.get_block();
     DEBUG("BLOCK: "<< counter_block);
@@ -275,7 +275,7 @@ int main(int argc, char** argv)
       haplotype_blocks2.push_back(output_block2);
     }
 
-  //}
+  }
 
   INFO("");
 
