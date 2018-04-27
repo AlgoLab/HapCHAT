@@ -25,8 +25,9 @@ all_methods = ['whatshap'] + hairs_methods + hap_methods
 # auxiliary programs
 time = '/usr/bin/time'
 timeout = '/usr/bin/timeout'
-_whhapchat_ = '../software/whatshap/venv/bin/whatshap'
-_whhcv_ = 'programs/whatshap/venv/bin/whatshap'
+_hapchat_ = '../software/whatshap/venv/bin/whatshap'
+_hapcut2vcf_ = 'programs/hapcut2vcf/venv/bin/whatshap'
+_compare_ = 'programs/compare/venv/bin/whatshap'
 _extracthairs_ = 'programs/hapcut/extractHAIRS'
 _extracthairs2_ = 'programs/HapCUT2/build/extractHAIRS'
 scriptsdir = '../scripts'
@@ -267,7 +268,7 @@ rule install_sih_method :
 
 # hapchat (just to ensure that the user has installed hapchat)
 rule install_hapchat :
-	output : _whhapchat_, _hapchatcore_
+	output : _hapchat_, _hapchatcore_
 	shell : '''
 
    cd ..
@@ -290,17 +291,32 @@ rule install_hapcut :
    cd hapcut
    make '''
 
-# whatshap (the branch for converting probhap/sih to vcf)
-rule install_whatshap :
-	output : _whhcv_
+# hapcut2vcf (a branch for converting probhap/sih to phased vcf)
+rule install_hapcut2vcf :
+	output : _hapcut2vcf_
 	message : 'installing branch of whatshap for enhanced hapcut2vcf features ...'
 	shell : '''
 
    mkdir -p programs
    cd programs
-   rm -rf whatshap
-   git clone --branch extend_hapcut2vcf https://bitbucket.org/whatshap/whatshap.git
-   cd whatshap
+   rm -rf hapcut2vcf
+   git clone --branch extend_hapcut2vcf https://bitbucket.org/whatshap/whatshap.git hapcut2vcf
+   cd hapcut2vcf
+   virtualenv -p python3 venv
+   venv/bin/pip3 install Cython nose tox
+   venv/bin/pip3 install -e . '''
+
+# compare (a branch of whatshap for comparing with completeness measures)
+rule install_compare :
+	output : _compare_
+        message : 'installing branch of whashap for enhanced comparison features ...'
+	shell : '''
+
+   mkdir -p programs
+   cd programs
+   rm -rf compare
+   git clone --branch completeness-measures https://bitbucket.org/whatshap/whatshap.git compare
+   cd compare
    virtualenv -p python3 venv
    venv/bin/pip3 install Cython nose tox
    venv/bin/pip3 install -e . '''
@@ -553,12 +569,14 @@ rule run_sih_method :
 #----------------------------------------------------------------------
 rule compare_vcfs :
 	input :
-		prgm = _whhapchat_,
+		prgm = _compare_,
 		true = 'data/vcf/' + vcf_pattern + '.phased.vcf',
 		vcf = 'output/' + output_pattern + '.phased.vcf'
 
 	output :
 		diff = 'output/' + output_pattern + '.diff',
+		acc = 'output/' + output_pattern + '.acc.tsv',
+		rec = 'output/' + output_pattern + '.rec.tsv',
 		bed = 'output/' + output_pattern + '.bed'
 
 	log : 'output/' + output_pattern + '.diff.log'
@@ -573,9 +591,12 @@ rule compare_vcfs :
 
 	shell : '''
 
-   {input.prgm} compare --switch-error-bed {output.bed} \
-      {input.true} {input.vcf} \
-         > {output.diff} 2> {log} || true
+   {input.prgm} compare \
+      --tsv-pairwise {output.acc} \
+      --tsv-completeness {output.rec} \
+      --switch-error-bed {output.bed} \
+         {input.vcf} {input.true} --only-snvs \
+            > {output.diff} 2> {log} || true
    touch {output} '''
 
 # convert old-skool hap format to a phased vcf
@@ -605,7 +626,7 @@ rule phase_vcf :
 # convert hapcut (or hapcut-like) output format to (phased) vcf
 rule hapcut_to_vcf :
 	input :
-		prgm = _whhcv_,
+		prgm = _hapcut2vcf_,
 		out = 'output/' + hapcut_pattern + '/' + full_pattern + '.out',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf'
 
@@ -643,7 +664,7 @@ rule increments :
 #----------------------------------------------------------------------
 rule get_wif :
 	input :
-		prgm = _whhapchat_,
+		prgm = _hapchat_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
 		ref = 'data/reference/human_g1k_v37.fasta'
