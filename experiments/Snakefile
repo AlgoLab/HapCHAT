@@ -331,7 +331,7 @@ rule run_whatshap :
 	input :
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'data/reference/human_g1k_v37.fasta'
+		ref = 'data/reference/human_g1k_v37.fasta' # TODO: fix this for na12878
 
 	params :
 		realignment = lambda wildcards, input :
