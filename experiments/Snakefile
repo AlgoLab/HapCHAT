@@ -36,10 +36,9 @@ scriptsdir = '../scripts'
 data = ['ashk', 'sim']
 platforms = ['pacbio']
 individuals = ['child'] # mother, father, ..
-chromosomes = [1] # 21, ..
+chromosomes = range(1,23)
 coverages = list(range(25, 65, 5)) # 25, 30, .., 60
 max_covs = list(range(15, 40, 5))
-chr_covs = { 1 : coverages }
 
 # preprocessing
 modes = ['raw', 'realigned'] # realignment
@@ -73,8 +72,10 @@ ea_vals = ['05_1', '05_01', '05_001', '05_0001', '05_00001']
 ea_two = ['01_1', '01_01', '01_001', '01_0001', '1_1', '1_01', '1_001', '1_0001']
 
 # common patterns
-vcf_pattern = '{dataset,[a-z]+}.{individual,(mother|father|child)}.chr{chromosome,[0-9]+}'
-dataset_pattern = '{dataset,[a-z]+}.{platform,[a-z]+}.{individual,(mother|father|child)}.chr{chromosome,[0-9]+}.cov{coverage,(all|[0-9]+)}'
+data_pattern = '{dataset,(na12878|ashk|sim)}'
+indiv_pattern = '{individual,(individual|mother|father|child)}'
+vcf_pattern = data_pattern + '.' + indiv_pattern + '.chr{chromosome,[0-9]+}'
+dataset_pattern = data_pattern + '.{platform,[a-z]+}.' + indiv_pattern + '.chr{chromosome,[0-9]+}.cov{coverage,(all|[0-9]+)}'
 hairs_pattern = dataset_pattern + '.{realignment,(raw|realigned)}{indelmode,(.indels|.noindels)}'
 whatshap_pattern = dataset_pattern + '.{realignment,(raw|realigned)}.h{h,([0-9]+|N)}'
 post_pattern = whatshap_pattern + '.{mergebefore,(' + merge_regex + ')}.{downsample,(' + downs_regex + ')}.{mergeafter,(' + merge_regex + ')}'
@@ -94,11 +95,14 @@ output_pattern = methods_pattern + '/' + full_pattern
 #----------------------------------------------------------------------
 
 # datasets we need to generate
-def datasets(data_, chromosomes_) :
-	return ['{}.pacbio.child.chr{}.cov{}'.format(datum_, chromosome_, coverage_)
+def ashkenazim(data_, coverages_) :
+	return ['{}.pacbio.child.chr1.cov{}'.format(datum_, coverage_)
 		for datum_ in data_
-		for chromosome_ in chromosomes_
-		for coverage_ in chr_covs[chromosome_]]
+		for coverage_ in coverages_]
+
+def na12878(chromosomes_) :
+	return ['na12878.pacbio.individual.chr{}.covall'.format(chromosome_)
+		for chromosome_ in chromosomes_]
 
 # datasets processed by whatshap to a specified list of max cov.
 def whatshap(datasets_, modes_, maxs_) :
