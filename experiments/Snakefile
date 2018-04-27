@@ -149,29 +149,50 @@ rule master :
 		# whatshap results
 		expand('output/whatshap/{pattern}.diff',
 			pattern = whatshap(
-					datasets(data, chromosomes),
+					ashkenazim(data, coverages),
 					['realigned'],
 					[15, 20, 25])),
+		expand('output/whatshap/{pattern}.diff',
+			pattern = whatshap(
+					na12878(chromosomes),
+					['realigned'],
+					[15, 20])),
 
 		# hapcol results
 		expand('output/hapcol/{pattern}.diff',
 			pattern = whatshap(
-                                	datasets(data, chromosomes),
+					ashkenazim(data, coverages),
                                       	['raw'],
 					[15, 20, 25, 30])),
+		expand('output/hapcol/{pattern}.diff',
+			pattern = whatshap(
+					na12878(chromosomes),
+					['raw'],
+					[25])),
 
 		# hapchat results
 		expand('output/hapchat/{pattern}.05_01.bN_0.{ext}',
 			pattern = postproc(
-					datasets(data, chromosomes),
+					ashkenazim(data, coverages),
 					['realigned'], [6], [3],
-					[15, 20, 25, 30, 35, 40]),
+					[15, 20, 25, 30, 35]),
+			ext = ['diff', 'inc']),
+		expand('output/hapchat/{pattern}.05_01.bN_0.{ext}',
+			pattern = postproc(
+					na12878(chromosomes),
+					['realigned'], [6], [3],
+					[30]),
 			ext = ['diff', 'inc']),
 
 		# hapcut2 results
 		expand('output/hapcut2/{pattern}.diff',
 			pattern = hairs(
-					datasets(['sim'], chromosomes),
+					ashkenazim(data, coverages),
+					modes,
+					indelmodes)),
+		expand('output/hapcut2/{pattern}.diff',
+			pattern = hairs(
+					na12878(chromosomes),
 					modes,
 					indelmodes)),
 
@@ -179,7 +200,13 @@ rule master :
 		expand('output/{method}/{pattern}.diff',
 			method = sih_methods + ['probhap'],
 			pattern = hairs(
-					datasets(data, chromosomes),
+					ashkenazim(data, coverages),
+					['raw'],
+					indelmodes)),
+		expand('output/{method}/{pattern}.diff',
+			method = sih_methods + ['probhap'],
+			pattern = hairs(
+					na12878(chromosomes),
 					['raw'],
                         		indelmodes)),
 
