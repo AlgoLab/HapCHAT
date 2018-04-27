@@ -189,12 +189,12 @@ rule master :
 			pattern = hairs(
 					ashkenazim(data, coverages),
 					modes,
-					indelmodes)),
+					['noindels'])),
 		expand('output/hapcut2/{pattern}.diff',
 			pattern = hairs(
 					na12878(chromosomes),
 					modes,
-					indelmodes)),
+					['noindels'])),
 
 		# refhap, fasthare and probhap results
 		expand('output/{method}/{pattern}.diff',
@@ -202,13 +202,13 @@ rule master :
 			pattern = hairs(
 					ashkenazim(data, coverages),
 					['raw'],
-					indelmodes)),
+					['noindels'])),
 		expand('output/{method}/{pattern}.diff',
 			method = sih_methods + ['probhap'],
 			pattern = hairs(
 					na12878(chromosomes),
 					['raw'],
-                        		indelmodes)),
+                        		['noindels'])),
 
 #
 # install the various haplotyping softwares
