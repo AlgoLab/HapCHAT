@@ -179,34 +179,6 @@ rule master :
 					['raw'],
                         		indelmodes)),
 
-# check for the input needed for this workflow
-rule check_input :
-	output :
-		# vcf files
-		expand('data/vcf/{data}.child.chr{chromosome}.{phase}.vcf',
-			data = data,
-			chromosome = chromosomes,
-			phase = ['unphased', 'phased']),
-
-		# bam files
-		expand('data/bam/{pattern}.bam',
-			pattern = datasets(data, chromosomes)),
-
-		# reference genome
-		'data/reference/human_g1k_v37.fasta'
-
-	shell : '''
-
-   echo
-   echo "the input data needed to run this pipeline is missing.  Move into"
-   echo "the data/ directory, which is a child directory of the current"
-   echo "directory, and follow the instructions there"
-   echo
-   echo "once the workflow in the data/ directory is complete, come back"
-   echo "to this directory and launch the workflow here"
-   echo
-   exit 1 '''
-
 #
 # install the various haplotyping softwares
 #----------------------------------------------------------------------
