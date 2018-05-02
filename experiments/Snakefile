@@ -331,7 +331,7 @@ rule run_whatshap :
 	input :
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'data/reference/human_g1k_v37.fasta' # TODO: fix this for na12878
+		ref = 'data/reference/human_g1k_v37.{dataset}.fasta'
 
 	params :
 		realignment = lambda wildcards, input :
@@ -672,7 +672,7 @@ rule get_wif :
 		prgm = _hapchat_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'data/reference/human_g1k_v37.fasta'
+		ref = 'data/reference/human_g1k_v37.{dataset}.fasta'
 
 	params :
                 realignment = lambda wildcards, input :
@@ -711,7 +711,7 @@ rule get_hairs :
 		prgm = _extracthairs_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'data/reference/human_g1k_v37.fasta'
+		ref = 'data/reference/human_g1k_v37.{dataset}.fasta'
 
 	params : lambda wildcards :
 		'--indels 1' if wildcards.indelmode == '.indels' else ''
@@ -741,7 +741,7 @@ rule get_hairs2 :
 		prgm = _extracthairs2_,
 		bam = 'data/bam/' + dataset_pattern + '.bam',
 		vcf = 'data/vcf/' + vcf_pattern + '.unphased.vcf',
-		ref = 'data/reference/human_g1k_v37.fasta'
+		ref = 'data/reference/human_g1k_v37.{dataset}.fasta'
 
 	params :
 		realignment = lambda wildcards :
