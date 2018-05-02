@@ -63,6 +63,10 @@ rule master :
 			chromosome = chromosomes,
 			phases = ['phased', 'unphased']),
 
+		# versions of the reference for different datasets
+		expand('reference/human_g1k_v37.{dataset}.fasta',
+			dataset = ['ashk', 'sim', 'na12878'])
+
 rule stats :
 	input :
 		expand('stats/bam/{dataset}.pacbio.child.chr1.cov{cov}.{ext}',
@@ -127,6 +131,24 @@ rule index_reference :
 	output : '{path}.fasta.bwt'
 	input : '{path}.fasta'
 	shell: 'bwa index {input}'
+
+
+rule rename_reference :
+	input : 'reference/human_g1k_v37.fasta'
+	output : 'reference/human_g1k_v37.chr.fasta'
+	shell : "sed '/^>/ s/^>/>chr/' {input} > {output}"
+
+
+rule link_ashk_reference :
+	input : 'reference/human_g1k_v37.fasta'
+	output : 'reference/human_g1k_v37.{data,(ashk|sim)}.fasta',
+	shell : 'ln -fsrv {input} {output}'
+
+
+rule link_na12878_reference :
+	input : 'reference/human_g1k_v37.chr.fasta'
+	output : 'reference/human_g1k_v37.na12878.fasta',
+	shell : ' ln -fsrv {input} {output}'
 
 #
 # downsample BAM files, add read group information, etc.
