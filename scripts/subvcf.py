@@ -175,8 +175,12 @@ for line in entree :
         assert contig == s[0], 'vcf file concerns more than one contig'
     contig = s[0]
 
-    gt, r_format = s[8].split(':',1)
-    unphasing, r_sample = s[9].split(':',1)
+    gt = s[8].split(':',1)[0]
+    sample = s[9].split(':',1)
+    unphasing = sample[0]
+    r_sample = None
+    if len(sample) > 1 :
+        r_sample = sample[1]
 
     # ensure that position is properly annotated, unphased (and 'known')
     assert gt == 'GT', s[8] + ' is an unexpected annotation'
@@ -201,9 +205,11 @@ for line in entree :
         # phasing mode
         if phasingmode :
             if pos in phasing :
-                tagged = '{}:{}:PS'.format(gt, r_format)
-                pp = phasing[pos]
-                phased = '{}:{}:{}'.format(pp['phasing'], r_sample, pp['ps'])
+                tagged = '{}:PS'.format(s[8])
+                phased_sample = phasing[pos]['phasing']
+                if r_sample :
+                    phased_sample = '{}:{}'.format(phased_sample, r_sample)
+                phased = '{}:{}'.format(phased_sample, phasing[pos]['ps'])
                 print(*s[:8], tagged, phased, *s[11:], sep = '\t')
             else :
                 sys.stdout.write(line)
