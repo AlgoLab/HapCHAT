@@ -5,6 +5,7 @@ RUN apt-get update && apt-get install -y \
     coreutils \
     g++ \
     git-core \
+    gosu \
     python3-biopython-sql \
     python3-dev \
     python3-networkx \
@@ -20,5 +21,7 @@ RUN git clone https://github.com/AlgoLab/HapCHAT.git && \
     cd HapCHAT && \
     ./setup.sh
 
+COPY gosu.sh /usr/local/bin/gosu.sh
 WORKDIR  "/HapCHAT/example"
-ENTRYPOINT ["/usr/bin/snakemake"]
+ENTRYPOINT ["/usr/local/bin/gosu.sh"]
+CMD ["/usr/bin/snakemake"]
